@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Basic vs Phong Material</title>
+        <style>
+            body {
+                margin: 0;
+            }
+            canvas {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+        <script>
+
+            function init() {
+                // create a scene, that will hold all our elements such as objects, cameras and lights.
+                const scene = new THREE.Scene();
+
+                // create a camera, which defines where we're looking at.
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(5, 5, 5);
+                scene.add(light);
+
+                function createWheel() {
+                    const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, 32);
+                    const wheelMaterial = new THREE.MeshBasicMaterial({color: 0x333333});
+                    const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                    wheel.rotation.z = Math.PI/2;
+                    wheel.rotation.y = Math.PI/2;
+                    return wheel;
+                }
+
+                const car = new THREE.Group();
+
+                const frontLeftWheel = createWheel();
+                frontLeftWheel.position.set(-1.5, -0.5, 1);
+                car.add(frontLeftWheel);
+
+                const frontRightWheel = createWheel();
+                frontRightWheel.position.set(1.5, -0.5, 1);
+                car.add(frontRightWheel);
+
+                const backLeftWheel = createWheel();
+                backLeftWheel.position.set(-1.5, -0.5, -1);
+                car.add(backLeftWheel);
+
+                const backRightWheel = createWheel();
+                backRightWheel.position.set(1.5, -0.5, -1);
+                car.add(backRightWheel);
+
+                // Create car body
+                const bodyGeometry = new THREE.BoxGeometry(3, 1, 2);
+                const bodyMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.position.y = 0; // Position the body above the wheels
+                car.add(body);
+
+                scene.add(car);
+
+                camera.position.z = 5;
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    car.rotation.y += Math.random()*0;
+                    car.rotation.x += Math.random()*0;
+                    
+
+                    renderer.render(scene, camera);
+                }
+                animate();
+            }
+
+            init();
+        </script>
+    </body>
+</html>

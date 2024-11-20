@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Basic vs Phong Material</title>
+        <style>
+            body {
+                margin: 0;
+            }
+            canvas {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
+
+        <script>
+            function init() {
+                // create a scene, that will hold all our elements such as objects, cameras and
+                // lights.
+                const scene = new THREE.Scene();
+
+                // create a camera, which defines where we're looking at.
+                const camera = new THREE.PerspectiveCamera(
+                    75,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000
+                );
+                const renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document
+                    .body
+                    .appendChild(renderer.domElement);
+
+                const light1 = new THREE.DirectionalLight(0xffffff, 1);
+                light1
+                    .position
+                    .set(10, 10, 10);
+                scene.add(light1);
+
+                const light2 = new THREE.PointLight(0xffffff, 0.5);
+                light2
+                    .position
+                    .set(-10, -10, 10);
+                scene.add(light2);
+                
+                //------------------------disco light--------------------------
+                const button = document.createElement('button');
+                button.textContent = 'Toggle Light';
+                button.style.position = 'absolute';
+                button.style.top = '10px';
+                button.style.right = '10px';
+                document.body.appendChild(button);
+
+                let lightOn = false;
+                button.addEventListener('click', () => {
+                    lightOn = !lightOn;
+                    changingLight.visible = lightOn;
+                });
+
+                const changingLight = new THREE.PointLight(0xffffff, 1);
+                changingLight.position.set(0, 5, 5);
+                changingLight.visible = false;
+                scene.add(changingLight);
+
+                let colorIndex = 0;
+                const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+
+                setInterval(() => {
+                    changingLight.color.setHex(colors[colorIndex]);
+                    colorIndex = (colorIndex + 1) % colors.length;
+                }, 100);
+                //-------------------------------------------------------------
+
+                const human = new THREE.Group();
+
+                // ---------------------------BODY----------------------------------------
+                // Create waist body
+                const waistGeometry = new THREE.CylinderGeometry(1.3, 1.7, 2, 32); // top radius, bottom radius, height, radial segments
+                const skinMaterial = new THREE.MeshPhongMaterial({color: 0xffcc99});
+                const waist = new THREE.Mesh(waistGeometry, skinMaterial);
+                waist.position.y = 0;
+                human.add(waist);
+
+                //torso joint
+                const chestJointGeometry = new THREE.SphereGeometry(1, 16, 16, 100); // Inner radius, tube radius, radial segments, tubular segments
+                const jointMaterial = new THREE.MeshPhongMaterial({color: 0xe6b38c});
+                const chestJoint = new THREE.Mesh(chestJointGeometry, jointMaterial);
+                chestJoint.position.y = 1.3;
+                waist.add(chestJoint);
+
+                //torso
+                const torsoGeometry = new THREE.CylinderGeometry(2.5, 1.3, 4, 32); // top radius, bottom radius, height, radial segments
+                const torso = new THREE.Mesh(torsoGeometry, skinMaterial)
+                torso.position.y = 2.0;
+                chestJoint.add(torso);
+                //upper chest
+                const chestGeometry = new THREE.CylinderGeometry(1.0, 2.5, 1, 32); // top radius, bottom radius, height, radial segments
+                const chest = new THREE.Mesh(chestGeometry, skinMaterial)
+                chest.position.y = 2.5;
+                torso.add(chest);
+                //---------------------------HEAD---------------------------------------- neck
+                // neck
+                const neckGeometry = new THREE.SphereGeometry(0.7, 32, 32);
+                const neck = new THREE.Mesh(neckGeometry, jointMaterial);
+                neck.position.y = 0.7;
+                chest.add(neck);
+
+                //head
+                const headGeometry = new THREE.RoundedBoxGeometry(2, 2.5, 2, 5, 0.3); 
+                // width, height, depth, segments, corner radius
+                const head = new THREE.Mesh(headGeometry, skinMaterial);
+                head.position.y = 1.5;
+                neck.add(head);
+
+                //hair
+                const afroGeometry = new THREE.SphereGeometry(2.5, 32, 32);
+                const hair = new THREE.MeshPhongMaterial({color: 0x2E0854});
+                const afro = new THREE.Mesh(afroGeometry, hair)
+                afro.position.set(0, 2.3, -0.8);
+                head.add(afro);
+
+                // sunglasses
+                const sunglassesGeometry = new THREE.BoxGeometry(2.1, 0.2, 1);
+                const shine = new THREE.MeshStandardMaterial({
+                        color: 0xaaaaaa,
+                        metalness: 0.8,
+                        roughness: 0.2
+                    });
+                const sunglasses = new THREE.Mesh(sunglassesGeometry, shine);
+                sunglasses.position.set(0, 0.1, 0.6);
+                head.add(sunglasses);
+
+                function lens(){
+                    const lensGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 32);
+                    const lens = new THREE.Mesh(lensGeometry, shine);
+                    lens.rotation.x = Math.PI / 2;
+                    return lens;
+                }
+                const leftlens = lens();
+                leftlens.position.set(0.5, 0, 0.5);
+                sunglasses.add(leftlens);
+
+                const rightlens = lens();
+                rightlens.position.set(-0.5, 0, 0.5);
+                sunglasses.add(rightlens);
+
+                function earsCreate(n){
+                    const earsGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 32);
+                    const ears = new THREE.Mesh(earsGeometry, skinMaterial);
+                    ears.rotation.x = Math.PI / 2;
+                    ears.rotation.z = Math.PI / 1.5*n;
+                    return ears;
+                }
+
+                const leftear = earsCreate(1);
+                leftear.position.set(1, 0, 0);
+                head.add(leftear);
+
+                const rightear = earsCreate(-1);
+                rightear.position.set(-1, 0, 0);
+                head.add(rightear);
+
+                const smileCurve = new THREE.BoxGeometry(0.8, 0.2, 0.2);
+                const smileMaterial = new THREE.MeshStandardMaterial({color: 0xfffffff});
+                const smile = new THREE.Mesh(smileCurve, smileMaterial);
+                smile.rotation.z = Math.PI /0.9;
+                smile.position.set(0.3, -0.7, 0.95);
+                const teethGeometry = new THREE.BoxGeometry(0.7, 0.05, 0.05);
+                const teethMaterial = new THREE.MeshStandardMaterial({color: 0x000000});
+                const teeth = new THREE.Mesh(teethGeometry, teethMaterial);
+                teeth.rotation.z = Math.PI /0.99;
+                teeth.position.set(0, 0, 0.1)
+                smile.add(teeth);
+                head.add(smile);
+                
+                const noseGeometry = new THREE.BoxGeometry(0.2, 0.5, 0.5);
+                const nose = new THREE.Mesh(noseGeometry, jointMaterial);
+                nose.position.set(0, -0.2, 0.83);
+                nose.rotation.x = Math.PI /0.7;
+                head.add(nose);
+
+                // ---------------------------ARMS----------------------------------------
+                // shoulder
+                function createShoulder() {
+                    const shoulderGeometry = new THREE.SphereGeometry(0.7, 32, 32);
+                    const shoulder = new THREE.Mesh(shoulderGeometry, jointMaterial);
+                    return shoulder;
+                }
+                const leftShoulder = createShoulder();
+                leftShoulder
+                    .position
+                    .set(2.9, 1.7, 0);
+                torso.add(leftShoulder);
+                const rightShoulder = createShoulder();
+                rightShoulder
+                    .position
+                    .set(-2.9, 1.7, 0);
+                torso.add(rightShoulder);
+
+                //finger function
+                function finger(){
+                    const fingerJoint1 = new THREE.SphereGeometry(0.07, 32, 32);
+                    const fingerJoint2 = new THREE.SphereGeometry(0.05, 32, 32);
+                    const finger1 = new THREE.Mesh(fingerJoint1, jointMaterial);
+                    
+                    const fingerSegment = new THREE.CylinderGeometry(0.06, 0.06, 0.2, 32)
+                    const finger2 = new THREE.Mesh(fingerSegment, skinMaterial);
+                    finger2.position.y=-0.13;
+                    finger1.add(finger2);
+
+                    const finger3 = new THREE.Mesh(fingerJoint2, jointMaterial);
+                    finger3.position.y=-0.12;
+                    finger2.add(finger3);
+
+                    const finger4 = new THREE.Mesh(fingerSegment, skinMaterial);
+                    finger4.position.y=-0.13;
+                    finger3.add(finger4);
+
+                    const finger5 = new THREE.Mesh(fingerJoint2, jointMaterial);
+                    finger5.position.y=-0.12;
+                    finger4.add(finger5);
+
+                    const finger6 = new THREE.Mesh(fingerSegment, skinMaterial);
+                    finger6.position.y=-0.13;
+                    finger5.add(finger6);
+
+                    const finger7 = new THREE.Mesh(fingerJoint2, jointMaterial);
+                    finger7.position.y=-0.10;
+                    finger6.add(finger7);
+
+                    return finger1;
+                }
+
+                // arm function
+                function createArm() {
+                    const armGeometry = new THREE.CylinderGeometry(0.5, 0.5, 3, 32);
+                    const arm = new THREE.Mesh(armGeometry, skinMaterial);
+
+                    const elbowGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+                    const elbow = new THREE.Mesh(elbowGeometry, jointMaterial);
+                    elbow.position.y = -1.8;
+                    arm.add(elbow);
+
+                    const forearmGeometry = new THREE.CylinderGeometry(0.5, 0.4, 2.5, 32);
+                    const forearm = new THREE.Mesh(forearmGeometry, skinMaterial);
+                    forearm.position.y = -1.4;
+                    elbow.add(forearm);
+
+                    const wristGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+                    const wrist = new THREE.Mesh(wristGeometry, jointMaterial);
+                    wrist.position.y = -1.4;
+                    forearm.add(wrist);
+
+                    const palmGeometry = new THREE.RoundedBoxGeometry(0.3, 0.7, 0.7, 1);
+                    const palm = new THREE.Mesh(palmGeometry, skinMaterial);
+                    palm.position.y = -0.6;
+                    wrist.add(palm);
+
+                    const thumbJoint = new THREE.SphereGeometry(0.13, 32, 32);
+                    const thumb1 = new THREE.Mesh(thumbJoint, jointMaterial);
+                    thumb1.position.set(0, 0.1, 0.4);
+                    palm.add(thumb1)
+
+                    const thumbsegment = new THREE.CylinderGeometry(0.08, 0.07, 0.2, 32);
+                    const thumb2 = new THREE.Mesh(thumbsegment, skinMaterial);
+                    thumb2.position.set(0, -0.2, 0.03);
+                    thumb1.add(thumb2)
+
+                    const thumbJoint2 = new THREE.SphereGeometry(0.06, 32, 32);
+                    const thumb3 = new THREE.Mesh(thumbJoint2, jointMaterial);
+                    thumb3.position.set(0, -0.13, 0);
+                    thumb2.add(thumb3)
+
+                    const thumbsegment2 = new THREE.CylinderGeometry(0.06, 0.06, 0.2, 32);
+                    const thumb4 = new THREE.Mesh(thumbsegment2, skinMaterial);
+                    thumb4.position.set(0, -0.13, 0);
+                    thumb3.add(thumb4)
+
+                    const index = finger();
+                    index.position.set(0, -0.37, 0.2);
+                    palm.add(index);
+                    const middle = finger();
+                    middle.position.set(0, -0.37, 0.07);
+                    palm.add(middle);
+                    const ring = finger();
+                    ring.position.set(0, -0.37, -0.07);
+                    palm.add(ring);
+                    const pinkie = finger();
+                    pinkie.position.set(0, -0.37, -0.2);
+                    palm.add(pinkie);
+                    
+
+                    return arm;
+                }
+
+                const leftArm = createArm();
+                leftArm
+                    .position
+                    .set(0, -2, 0);
+                leftShoulder.add(leftArm);
+                const rightArm = createArm();
+                rightArm
+                    .position
+                    .set(0, -2, 0);
+                rightShoulder.add(rightArm);
+
+                //watch
+                const watchGeometry=  new THREE.CylinderGeometry(0.45, 0.45, 0.3, 32);
+                const watch = new THREE.Mesh(watchGeometry, shine);
+                watch.position.set(0, -4, 0);
+                leftArm.add(watch);
+                const watchfaceGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.05, 32);
+                const watchface = new THREE.Mesh(watchfaceGeometry, shine);
+                watchface.position.set(0.45, 0, 0);
+                watchface.rotation.z = Math.PI /0.4;
+                watch.add(watchface);
+                const watchfaceGeometry2 = new THREE.CylinderGeometry(0.28, 0.28, 0.05, 32);
+                const watchfaceMaterial2 = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,
+                    });
+                const watchface2 = new THREE.Mesh(watchfaceGeometry2, watchfaceMaterial2);
+                watchface2.position.y=-0.02;
+                watchface.add(watchface2);
+
+                //pose
+                rightShoulder.rotation.set(0, 0, 10);
+                rightArm.rotation.set(0, -1.5, 0);
+
+
+                // ---------------------------LEGS---------------------------------------- hip
+                // joint
+                const leftHip = createShoulder();
+                leftHip
+                    .position
+                    .set(0.8, -1.5, 0);
+                waist.add(leftHip);
+                const rightHip = createShoulder();
+                rightHip
+                    .position
+                    .set(-0.8, -1.5, 0);
+                waist.add(rightHip);
+
+                function toe(n){
+                    const toeGeometry = new THREE.CylinderGeometry(0.1*n, 0.1*n, 0.2*n, 32);
+                    const toe1 = new THREE.Mesh(toeGeometry, skinMaterial);
+                    toe1.rotation.x = Math.PI /0.4;
+
+                    const toeJointGeometry = new THREE.SphereGeometry(0.08*n, 32, 32);
+                    const toeJoint = new THREE.Mesh(toeJointGeometry, jointMaterial);
+                    toeJoint.position.y=0.1*n;
+                    toe1.add(toeJoint);
+
+                    const toe2 = new THREE.Mesh(toeGeometry, skinMaterial);
+                    toe2.position.y=0.15*n;
+                    toeJoint.add(toe2);
+
+                    return toe1;
+                }
+
+                //legs
+                function createLegs(n) {
+                    const thighGeometry = new THREE.CylinderGeometry(0.7, 0.6, 3.5, 32);
+                    const thigh = new THREE.Mesh(thighGeometry, skinMaterial);
+
+                    const kneeGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+                    const knee = new THREE.Mesh(kneeGeometry, jointMaterial);
+                    knee.position.y = -1.9;
+                    thigh.add(knee);
+
+                    const shinGeometry = new THREE.CylinderGeometry(0.6, 0.5, 3.2, 32);
+                    const shin = new THREE.Mesh(shinGeometry, skinMaterial);
+                    shin.position.y = -1.9;
+                    knee.add(shin);
+
+                    const ankleGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+                    const ankle = new THREE.Mesh(ankleGeometry, jointMaterial);
+                    ankle.position.y = -1.9;
+                    shin.add(ankle);
+
+                    const footGeometry = new THREE.BoxGeometry(0.75, 0.3, 1.5);
+                    const foot = new THREE.Mesh(footGeometry, skinMaterial);
+                    foot.position.y = -0.3;
+                    foot.position.z = 0.3;
+                    ankle.add(foot);
+
+                    const BigToe=toe(1);
+                    BigToe.position.set(0.28*n, 0, 0.85);
+                    foot.add(BigToe);
+                    const indexToe=toe(0.8);
+                    indexToe.position.set(0.09*n, 0, 0.83);
+                    foot.add(indexToe);
+                    const midToe=toe(0.7);
+                    midToe.position.set(-0.07*n, 0, 0.82);
+                    foot.add(midToe);
+                    const ringToe=toe(0.6);
+                    ringToe.position.set(-0.21*n, 0, 0.81);
+                    foot.add(ringToe);
+                    const pinkieToe=toe(0.5);
+                    pinkieToe.position.set(-0.33*n, 0, 0.8);
+                    foot.add(pinkieToe);
+
+                    return thigh;
+                }
+
+                const leftLeg = createLegs(-1);
+                leftLeg
+                    .position
+                    .set(0, -2.2, 0);
+                leftHip.add(leftLeg);
+                const rightLeg = createLegs(1);
+                rightLeg
+                    .position
+                    .set(0, -2.2, 0);
+                rightHip.add(rightLeg);
+
+                //---------------------------CAMERA----------------------------------------
+                scene.add(human);
+                camera.position.set(0, 7, 15);
+                camera.rotation.set(0, 0, 0);
+
+
+
+                // copilot made, delete after - used for position
+                // Add sliders for camera position
+                const controlsContainer = document.createElement('div');
+                controlsContainer.style.position = 'absolute';
+                controlsContainer.style.top = '10px';
+                controlsContainer.style.left = '10px';
+                controlsContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                controlsContainer.style.padding = '10px';
+                controlsContainer.style.borderRadius = '5px';
+                document.body.appendChild(controlsContainer);
+
+                function createSlider(labelText, min, max, step, initialValue, onChange) {
+                    const label = document.createElement('label');
+                    label.textContent = labelText;
+                    controlsContainer.appendChild(label);
+
+                    const slider = document.createElement('input');
+                    slider.type = 'range';
+                    slider.min = min;
+                    slider.max = max;
+                    slider.step = step;
+                    slider.value = initialValue;
+                    slider.addEventListener('input', onChange);
+                    controlsContainer.appendChild(slider);
+
+                    const valueDisplay = document.createElement('span');
+                    valueDisplay.textContent = initialValue;
+                    controlsContainer.appendChild(valueDisplay);
+
+                    slider.addEventListener('input', () => {
+                        valueDisplay.textContent = slider.value;
+                    });
+
+                    controlsContainer.appendChild(document.createElement('br'));
+                }
+
+                createSlider('Camera X: ', -20, 20, 0.1, camera.position.x, (event) => {
+                    camera.position.x = event.target.value;
+                });
+
+                createSlider('Camera Y: ', -20, 20, 0.1, camera.position.y, (event) => {
+                    camera.position.y = event.target.value;
+                });
+
+                createSlider('Camera Z: ', -20, 20, 0.1, camera.position.z, (event) => {
+                    camera.position.z = event.target.value;
+                });
+
+                createSlider('Camera Rotation X: ', -Math.PI, Math.PI, 0.01, camera.rotation.x, (event) => {
+                    camera.rotation.x = event.target.value;
+                });
+
+                createSlider('Camera Rotation Y: ', -Math.PI, Math.PI, 0.01, camera.rotation.y, (event) => {
+                    camera.rotation.y = event.target.value;
+                });
+
+                createSlider('Camera Rotation Z: ', -Math.PI, Math.PI, 0.01, camera.rotation.z, (event) => {
+                    camera.rotation.z = event.target.value;
+                });
+
+
+
+                //---------------------------ANIMATION----------------------------------------
+                function animate() {
+                    requestAnimationFrame(animate);
+                    human.rotation.y += 0.0;
+                    human.rotation.x += 0;
+
+
+                    renderer.render(scene, camera);
+                }
+                animate();
+            }
+
+            init();
+    </script>
+</body>
+</html>

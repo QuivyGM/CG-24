@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Basic vs Phong Material</title>
+        <style>
+            body {
+                margin: 0;
+            }
+            canvas {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+        <script>
+
+            function init() {
+                // create a scene, that will hold all our elements such as objects, cameras and lights.
+                const scene = new THREE.Scene();
+
+                // create a camera, which defines where we're looking at.
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(5, 5, 5);
+                scene.add(light);
+
+                camera.position.z = 5;
+
+                const human = new THREE.Group();
+                
+                const bodyGeometry = new THREE.BoxGeometry(1.5, 3, 1);
+                const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                human.add(body);
+
+                const headGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const headMaterial = new THREE.MeshPhongMaterial({ color: 0xffcc99 });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.set(0, 2, 0);
+                body.add(head);
+
+                const LeyeGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                const eyeMaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
+                const Leye = new THREE.Mesh(LeyeGeometry, eyeMaterial);
+                Leye.position.set(0.3, 0.05, 0.5);
+                head.add(Leye);
+
+                const ReyeGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                const Reye = new THREE.Mesh(LeyeGeometry, eyeMaterial);
+                Reye.position.set(-0.3, 0.05, 0.5);
+                head.add(Reye);
+
+                const leftArmGeometry = new THREE.BoxGeometry(0.5, 3, 0.5);
+                const leftArm = new THREE.Mesh(leftArmGeometry, headMaterial);
+                leftArm.position.set(1.5, 0, 0);
+                body.add(leftArm);
+
+                const rightArmGeometry = new THREE.BoxGeometry(0.5, 3, 0.5);
+                const rightArm = new THREE.Mesh(rightArmGeometry, headMaterial);
+                rightArm.position.set(-1.5, 0, 0);
+                body.add(rightArm);
+
+
+                const leftLegGeometry = new THREE.BoxGeometry(0.5, 3, 0.5);
+                const leftLeg = new THREE.Mesh(leftLegGeometry, headMaterial);
+                leftLeg.position.set(-0.5, -2, 0);
+                human.add(leftLeg);
+
+                const rightLegGeometry = new THREE.BoxGeometry(0.5, 3, 0.5);
+                const rightLeg = new THREE.Mesh(rightLegGeometry, headMaterial);
+                rightLeg.position.set(0.5, -2, 0);
+                human.add(rightLeg);
+
+                scene.add(human);
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    human.rotation.y += 0.005;
+                    //human.rotation.x += Math.random()*0;
+                    
+
+                    renderer.render(scene, camera);
+                }
+                animate();
+            }
+
+            init();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,75 @@
+const scene = new Three.Scene();
+const Human = new Three.Object3D();
+scene.add(Human);
+
+// Upper Body
+    Human.add(Waist);
+        Waist.add(Torso);
+            Torso.add(Chest);
+            
+                // Head and Face Details
+                Chest.add(Neck);
+                    Neck.add(Head);
+                        Head.add(Hair);
+                        Head.add(Ears);
+                        Head.add(Face);
+                            Face.add(Nose);
+                            Face.add(Glasses);
+                            Face.add(RightEye);
+                                RightEye.add(RightEyebrow);
+                            Face.add(LeftEye);
+                                LeftEye.add(LeftEyebrow);
+                            Face.add(Mouth);
+                                Mouth.add(Teeth);
+                                Mouth.add(Jaw);
+                
+                // Left Arm Details
+                Chest.add(LeftArm);
+                    LeftArm.add(LeftElbow);
+                        LeftElbow.add(Forearm);
+                            LeftForearm.add(Watch);
+                                Watch.add(LeftPalm);
+                                    LeftPalm.add(LeftThumb);
+                                    LeftPalm.add(LeftIndex);
+                                    LeftPalm.add(LeftMiddle);
+                                    LeftPalm.add(LeftRing);
+                                    LeftPalm.add(LeftPinkie);
+
+                // Right Arm Details
+                Chest.add(RightArm);
+                    RightArm.add(RightElbow);
+                        RightElbow.add(Forearm);
+                            RightForearm.add(RightWrist);
+                                RightWrist.add(RightPalm);
+                                    RightPalm.add(RightThumb);
+                                    RightPalm.add(RightIndex);
+                                    RightPalm.add(RightMiddle);
+                                    RightPalm.add(RightRing);
+                                    RightPalm.add(RightPinkie);
+
+// Lower Body
+        Waist.add(Hips);
+        
+            // Left Leg Details
+            Hips.add(LeftThigh);
+                LeftThigh.add(LeftKnee);
+                    LeftKnee.add(LeftCalf);
+                        LeftCalf.add(LeftAnkle);
+                            LeftAnkle.add(LeftFoot);
+                                LeftFoot.add(LeftBigToe);
+                                LeftFoot.add(LeftIndexToe);
+                                LeftFoot.add(LeftMiddleToe);
+                                LeftFoot.add(LeftRingToe);
+                                LeftFoot.add(LeftPinkieToe);
+            
+            // Right Leg Details
+            Hips.add(RightThigh);
+                RightThigh.add(RightKnee);
+                    RightKnee.add(RightCalf);
+                        RightCalf.add(RightAnkle);
+                            RightAnkle.add(RightFoot);
+                                RightFoot.add(RightBigToe);
+                                RightFoot.add(RightIndexToe);
+                                RightFoot.add(RightMiddleToe);
+                                RightFoot.add(RightRingToe);
+                                RightFoot.add(RightPinkieToe);

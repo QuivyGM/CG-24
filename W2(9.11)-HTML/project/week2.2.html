@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Simplified interactive Page</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <p>Select your favorite color:
+            <select id="colorSelect">
+                <option value="">--Choose a color--</option>
+                <option value="red">Red</option>
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+                <option value="yellow">Yellow</option>
+            </select>
+        </p>
+        
+        <script>
+            const colorSelect = document.getElementById('colorSelect');
+            colorSelect.addEventListener('change', function() {
+                document.body.style.backgroundColor = this.value;
+            });
+        </script>
+
+        <img src="google.png" alt="GOOGLE" class="center" size=50%>
+
+        <form class="search-form" onsubmit="return handleSubmit(event)">
+            <input name="q" type="text" class="center-search" placeholder="Enter your name" id="nameInput">
+            <button type="submit" class="search-button">Submit</button>
+        </form>
+        
+        <div class="result" id="result" class="center-search"></div>
+        
+        <script>
+            function handleSubmit(event) {
+        
+        
+        // Check if the input is empty
+        let nameInput = document.forms["myform"]["q"].value;
+        if (nameInput === "") {
+            alert("Please Enter Name");
+            return false;
+        }
+
+        // If input is not empty, show the result
+        const resultDiv = document.getElementById('result');
+        resultDiv.textContent = `Hello, ${nameInput}!`;
+
+        return true;
+    }
+        </script>
+        
+
+    </body>
+</html>

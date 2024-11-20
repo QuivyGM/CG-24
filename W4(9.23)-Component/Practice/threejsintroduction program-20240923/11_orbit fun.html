@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ThreeJS 프로그램-04</title>
+    <script src="./three.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="webgl-output"></div>
+
+    <script>
+        function init() {
+            // create a scene
+            var scene = new THREE.Scene();
+
+            // create a camera
+            var camera = new THREE.PerspectiveCamera(
+                45,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+
+            // create a renderer and set the size
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(new THREE.Color(0x000000));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            // add a light to the scene
+            var spotLight = new THREE.SpotLight(0xffffff);
+            spotLight.position.set(-40, 60, -10);
+            spotLight.castShadow = true;
+            scene.add(spotLight);
+
+            // create a sphere
+            var sphereGeometry = new THREE.SphereGeometry(2, 32, 32);
+            var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+            var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            sphere.castShadow = true;
+            scene.add(sphere);
+
+            // create a blue cube
+            var blueCubeGeometry = new THREE.BoxGeometry(1, 1, 1); // Use smaller cube size for better orbit
+            var blueCubeMaterial = new THREE.MeshLambertMaterial({ color: 0x0000FF });
+            var blueCube = new THREE.Mesh(blueCubeGeometry, blueCubeMaterial);
+            scene.add(blueCube);
+
+            // create a grey cube that will orbit the blue cube
+            var greyCubeGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5); // Smaller size for grey cube
+            var greyCubeMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 }); // Grey color
+            var greyCube = new THREE.Mesh(greyCubeGeometry, greyCubeMaterial);
+            scene.add(greyCube);
+
+            // position and point the camera to the center of the scene
+            camera.position.set(-10, 10, 10);
+            camera.lookAt(sphere.position);
+
+            // Initialize variables for animation
+            var angle = 0; // Initial angle for orbiting blue cube
+            var radius = 5; // Distance from the sphere
+            var greyCubeAngle = 0; // Initial angle for grey cube orbiting blue cube
+            var greyCubeRadius = 2; // Distance from the blue cube
+
+            // add the output of the renderer to the html element
+            document.getElementById("webgl-output").appendChild(renderer.domElement);
+
+            // render the scene
+            renderScene();
+
+            function renderScene() {
+                // Update blue cube position to orbit around the sphere
+                angle += 0.02; // Change the angle to move in a circular path
+                blueCube.position.x = sphere.position.x + radius * Math.cos(angle);
+                blueCube.position.z = sphere.position.z + radius * Math.sin(angle);
+                blueCube.rotation.y += 0.02; // Rotate the blue cube on its own axis
+
+                // Update grey cube position to orbit around the blue cube
+                greyCubeAngle += 0.04; // Change the angle to move in a circular path around the blue cube
+                greyCube.position.x = blueCube.position.x + greyCubeRadius * Math.cos(greyCubeAngle);
+                greyCube.position.z = blueCube.position.z + greyCubeRadius * Math.sin(greyCubeAngle);
+                
+                // Render the scene
+                requestAnimationFrame(renderScene);
+                renderer.render(scene, camera);
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

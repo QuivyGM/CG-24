@@ -1,0 +1,27 @@
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+ }
+ .search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the input and button */
+    margin-top: 50px;
+}
+
+.center-search {
+}
+
+.search-button {
+    font-size: 16px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 20px;
+    font-size: 18px;
+    text-align: center; /* Center the result text */
+}   

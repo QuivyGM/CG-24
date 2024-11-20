@@ -1,0 +1,19 @@
+h1{
+    color : red;
+}
+.cls{
+    color: yellow
+}
+#head{
+    font-size : 500%;
+}
+#head1{
+    color: red;
+    font-size: 500%;
+}
+.Class1{
+    color: rgb(252, 252, 103);
+}
+h1[style="color: red"] {
+    color: green;
+  }

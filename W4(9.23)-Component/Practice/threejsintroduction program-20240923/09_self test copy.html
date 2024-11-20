@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>ThreeJS Program - Pastel Cubes</title>
+        <script src="./three.js"></script>
+        <script src="./Stats.js"></script>
+        <script src="./dat.gui.js"></script>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="stats-output"></div>
+        <div id="webgl-output"></div>
+
+        <script>
+            var step = 0;
+            var scene, camera, renderer;
+        
+            // Array to store cubes and their properties
+            var cubes = [];
+        
+            // Pastel color array
+            var pastelColors = [
+                0xFFB3BA, // Pastel Pink
+                0xFFDFBA, // Pastel Orange
+                0xFFFFBA, // Pastel Yellow
+                0xBAFFC9, // Pastel Green
+                0xBAE1FF, // Pastel Blue
+                0xD3B5E5, // Pastel Purple
+                0xFFDFD3, // Pastel Peach
+                0xFFFACD, // Light Lemon
+                0xD4F1F9, // Light Sky Blue
+                0xDAD9F2  // Soft Lilac
+            ];
+        
+            function onResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        
+            var controls = new function () {
+                this.rotationSpeed = 0.02;
+            }
+        
+            var gui = new dat.GUI();
+            gui.add(controls, 'rotationSpeed', 0, 0.5);
+        
+            function initStats() {
+                var stats = new Stats();
+                stats.setMode(0);
+                stats.domElement.style.position = 'absolute';
+                stats.domElement.style.left = '0px';
+                stats.domElement.style.top = '0px';
+                document.getElementById("stats-output").appendChild(stats.domElement);
+                return stats;
+            }
+        
+            function init() {
+                var stats = initStats();
+        
+                // Create scene
+                scene = new THREE.Scene();
+        
+                // Create camera
+                camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+                camera.position.set(-30, 40, 30);
+                camera.lookAt(scene.position);
+        
+                // Create renderer
+                renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor(new THREE.Color(0x000000));
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.shadowMap.enabled = true;
+        
+                // Add light
+                var spotLight = new THREE.SpotLight(0xffffff);
+                spotLight.position.set(-40, 60, -10);
+                spotLight.castShadow = true;
+                scene.add(spotLight);
+        
+                // Create axes helper
+                var axes = new THREE.AxesHelper(20);
+                scene.add(axes);
+        
+                // Create cubes with different colors but all positioned at (0, 0, 0)
+                for (var i = 0; i < pastelColors.length; i++) {
+                    // Limit rotation speed to between -0.01 and 0.01
+                    var rotationSpeed = (Math.random() * 0.02) - 0.01;
+                    createCube(8, {x: 0, y: 0, z: 0}, pastelColors[i], rotationSpeed);
+                }
+        
+                // Add the renderer output to the HTML element
+                document.getElementById("webgl-output").appendChild(renderer.domElement);
+        
+                renderScene();
+        
+                function renderScene() {
+                    stats.update();
+        
+                    // Update and animate each cube
+                    cubes.forEach(function (cubeData) {
+                        cubeData.cube.rotation.x += cubeData.rotationSpeed;
+                        cubeData.cube.rotation.y += cubeData.rotationSpeed;
+                        cubeData.cube.rotation.z += cubeData.rotationSpeed;
+                    });
+        
+                    requestAnimationFrame(renderScene);
+                    renderer.render(scene, camera);
+                }
+            }
+        
+            // Function to create a cube with unique properties
+            function createCube(size, position, color, rotationSpeed) {
+                var geometry = new THREE.BoxGeometry(size, size, size);
+                var material = new THREE.MeshLambertMaterial({ color: color });
+                var cube = new THREE.Mesh(geometry, material);
+                cube.position.set(position.x, position.y, position.z);
+                cube.castShadow = true;
+                scene.add(cube);
+        
+                // Store cube with its rotation speed
+                cubes.push({
+                    cube: cube,
+                    rotationSpeed: rotationSpeed
+                });
+            }
+        
+            window.onload = init;
+            window.addEventListener('resize', onResize, false);
+        </script>
+    </body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Page Title</title>
+        <link rel="stylesheet" href="style2.css">
+    </head>
+
+    <body>
+        <!-- Commented out heading and paragraph elements -->
+        <!-- <h1>This is a Heading</h1>
+        <p>This is a paragraph.</p>
+        <h1>This is a heading</h1>
+        <h1 class="cls">This is a class heading</h1>
+        <h1 id="head">This is an id heading</h1> -->
+
+        <!-- Commented out various heading elements with different attributes -->
+        <!-- <h1>This is a Head1</h1>
+        <h1 id = "head1">Head1: id</h1>
+        <h1 class="Class1">Head1: class</h1>
+        <h1 style="color:red">Head1: style</h1> -->
+
+        <!-- Commented out input element with inline styles -->
+        <!-- <input type="text" style="width: 500px; height: 100px; font-size: 90px"> -->
+
+        <!-- Commented out buttons inside a div -->
+        <!-- <div>
+            <button style = "width: 100px; height: 100px; font-size: 20px;">버튼1</button>
+            <button style = "width: 100px; height: 100px; font-size: 20px;">버튼2</button>
+        </div>
+        <div style="display:flex;"></div> -->
+
+        <!-- Commented out table with border -->
+        <!-- <table border="1">
+            <tr>
+                <th>name</th>
+                <th>age</th>
+            </tr>
+            <tr>
+                <td>John</td>
+                <td>25</td>
+            </tr>
+            <tr>
+                <td>Okoko</td>
+                <td>30</td>
+            </tr>
+        </table> -->
+
+        <!-- Commented out form with various input types -->
+        <!-- <form>
+            <input type="text" placeholder="Enter your name">
+            <input type = "email">
+            <input type = "password">
+            <input type = "date">
+            <button type = "Submit">Submit</button>
+        </form> -->
+
+        <!-- Commented out select element with options -->
+        <!-- <select>
+            <option value="1" selected>Option 1</option>
+            <option value="1">Option 2</option>
+        </select> -->
+
+        <!-- Commented out image element -->
+        <!-- <img src="https://media.npr.org/assets/img/2023/01/14/this-is-fine_custom-b7c50c845a78f5d7716475a92016d52655ba3115.jpg" alt="fail.png" width="500" height="auto"/> -->
+
+        <!-- Commented out unordered and ordered lists -->
+        <!-- <ul>
+            <li>12121212</li>
+            <li>151515</li>
+        </ul>
+        <ol>
+            <li>656565</li>
+            <li>232323</li>
+        </ol> -->
+
+        <!-- Commented out JavaScript example to change HTML content -->
+        <!-- <p id="demo">JavaScript can change HTML content.</p>
+        <button type="button" onclick='document.getElementById("demo").innerHTML = "Hello JavaScript!"'>click me!</button> -->
+
+        <!-- Commented out JavaScript example with variable -->
+        <!-- <p id="demo">JavaScript can change HTML content.</p>
+        <button type="button" onclick='document.getElementById("demo").innerHTML = text'>click me!</button>
+        <script>
+            let text = "Hello JS"
+        </script> -->
+
+        <!-- Commented out JavaScript example with function to calculate power -->
+        <!-- <p id="demo">JavaScript can change HTML content.</p>
+        <button type="button" onclick='document.getElementById("demo").innerHTML = make2pow(4)'>click me!</button>
+        <script>
+            function make2pow(num){
+                    return Math.pow(num, 2)
+            }
+        </script> -->
+
+        <!-- Commented out JavaScript example with function to create a list -->
+        <!-- <p id="demo">JavaScript can change HTML content.</p>
+        <button type="button" onclick='document.getElementById("demo").innerHTML = makelist()'>click me!</button>
+        <script>
+            function makelist(){
+                const lists = ["OneJS", "TwoJS", "ThreeJS"];
+                let text="";
+                for(let i=0; i<lists.length; i++){
+                    text +=lists[i] + "<br>";
+                }
+                return text
+            }
+        </script> -->
+
+        <!-- Commented out form to search on Google -->
+        <!-- <form action="https://www.google.com/search" method="GET">
+            <input name="q" type="text">
+        </form> -->
+
+        <!-- Form with validation to prevent submission if input is blank -->
+        <form name="myform" action="https://www.google.com/search" onsubmit="return alertForm()" method="GET">
+            <input name="q" type="text">
+        </form>
+        <script>
+            function alertForm(){
+                let x = document.forms["myform"]["q"].value;
+                if(x==""){
+                    alert("no blank");
+                    return false;
+                }
+                return true;
+            }
+        </script>
+    </body>
+</html>

@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>ThreeJS
-    </title>
+    <title>ThreeJS</title>
     <script src="./three.js"></script>
     <script src="./dat.gui.js"></script>
     <script src="./OrbitControls.js"></script>
@@ -22,7 +21,6 @@
     <script>
 
         function init() {
-
             var scene = new THREE.Scene();
             var camera = new THREE.PerspectiveCamera(
                 45,
@@ -33,38 +31,121 @@
             const gui = new dat.GUI();
 
             var renderer = new THREE.WebGLRenderer();
-            renderer.setClearColor(new THREE.Color(0xffffff));
+            renderer.setClearColor(0x000000);
             renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Attach the renderer to the webgl-output div
+            document.getElementById("webgl-output").appendChild(renderer.domElement);
             renderer.shadowMap.enabled = true;
 
-            //화면 마우스로 회전시키기
+            // OrbitControls
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             camera.position.set(-20, 20, 20);
             controls.update();
 
+            // Axes Helper
             var axes = new THREE.AxesHelper(15);
             scene.add(axes);
 
+            // Light
             const color = 0xFFFFFF;
             const intensity = 1;
             const light = new THREE.DirectionalLight(color, intensity);
             light.position.set(-10, 2, 4);
             scene.add(light);
 
-            gui
-                .add(axes, 'visible')
-                .name("축표시")
+            // GUI
+            gui.add(axes, 'visible').name("축표시");
 
-            function updateCamera() {
-                camera.updateProjectionMatrix()
+            // Sphere Geometry and Material
+            const geometry = new THREE.SphereGeometry(2, 32, 16);
+            const material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+            material.flatShading = true;
+            material.metalness = 0.64;
+            material.roughness = 0.39;
+
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.y = 10;
+            scene.add(sphere);
+
+            gui.add(sphere.material, 'metalness', 0, 1, 0.01);
+            gui.add(sphere.material, 'roughness', 0, 1, 0.01);
+
+            // Plane
+            const pgeometry = new THREE.PlaneGeometry(15, 15);
+            const pmaterial = new THREE.MeshLambertMaterial();
+            const plane = new THREE.Mesh(pgeometry, pmaterial);
+            plane.rotation.x = 1.5 * Math.PI;
+            plane.position.set(0, -1, 0);
+            scene.add(plane);
+
+            // Ambient Light
+            var ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+
+            // Box Geometry and Animation Setup
+            const animationObjects = []; // Store all objects for animation
+
+            const boxgeometry = new THREE.BoxGeometry(1, 1, 1);
+            const boxmaterial = new THREE.MeshStandardMaterial({ color: 0xffffff }); // Use MeshStandardMaterial
+
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const boxmesh = new THREE.Mesh(boxgeometry, boxmaterial.clone());
+                    boxmesh.position.x = 6 - (3 * i);
+                    boxmesh.position.y = 0;
+                    boxmesh.position.z = 6 - (3 * j);
+                    scene.add(boxmesh);
+                    animationObjects.push(boxmesh); // Add to animation list
+                }
             }
 
+            animationObjects.push(sphere); // Add sphere for animation
 
-            ////// PPT  실습 코드 ///
-            
+            // Define the Axis of Rotation and Keyframe Tracks
+            const xAxis = new THREE.Vector3(1, 0, 0);
+            const qInitial = new THREE.Quaternion().setFromAxisAngle(xAxis, 0);
+            const qMiddle = new THREE.Quaternion().setFromAxisAngle(xAxis, Math.PI);
+            const qFinal = new THREE.Quaternion().setFromAxisAngle(xAxis, 2 * Math.PI);
 
-             ////// PPT  실습 코드 ///
+            const quaternionKF = new THREE.QuaternionKeyframeTrack(
+                '.quaternion',
+                [0, 1, 2], // Time in seconds
+                [
+                    qInitial.x, qInitial.y, qInitial.z, qInitial.w,
+                    qMiddle.x, qMiddle.y, qMiddle.z, qMiddle.w,
+                    qFinal.x, qFinal.y, qFinal.z, qFinal.w
+                ]
+            );
+
+            const colorKF = new THREE.ColorKeyframeTrack(
+                '.material.color',
+                [0, 1, 2],
+                [1, 0, 0, 0, 1, 0, 0, 0, 1] // Red -> Green -> Blue
+            );
+
+            const clip = new THREE.AnimationClip('SpinAndColor', -1, [quaternionKF, colorKF]);
+
+            // Create and Play Animation for Each Object
+            const mixers = [];
+            animationObjects.forEach((object) => {
+                const mixer = new THREE.AnimationMixer(object);
+                const action = mixer.clipAction(clip);
+                action.play();
+                mixers.push(mixer);
+            });
+
+            // Render loop to update all mixers
+            const clock = new THREE.Clock();
+            function renderScene() {
+                const delta = clock.getDelta();
+                mixers.forEach((mixer) => mixer.update(delta)); // Update each mixer
+                requestAnimationFrame(renderScene);
+                renderer.render(scene, camera);
+            }
+            renderScene();
         }
+
         window.onload = init;
     </script>
 </body>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>ThreeJS</title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="./OrbitControls.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgl-output"></div>
+    <script>
+        var scene = new THREE.Scene();
+
+        var camera = new THREE.PerspectiveCamera(
+            45,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+
+        const gui = new dat.GUI();
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(new THREE.Color(0x000000));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+
+        // 화면 마우스로 회전시키기
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.set(-20, 20, 20);
+        controls.update();
+
+        var axes = new THREE.AxesHelper(15);
+        scene.add(axes);
+
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-10, 2, 4);
+        scene.add(light);
+
+        gui 
+            .add(axes, 'visible')
+            .name("축표시")        
+        
+        // create box
+        const geometry_box = new THREE.BoxGeometry( 1, 1, 1 );
+        const material_box = new THREE.MeshNormalMaterial();
+        const cube = new THREE.Mesh( geometry_box, material_box );
+        cube.position.y = 0;
+        scene.add( cube );
+
+        // create plane
+        const pgeometry = new THREE.PlaneGeometry(15, 15);
+        const pmaterial = new THREE.MeshLambertMaterial();
+        const plane = new THREE.Mesh(pgeometry, pmaterial);
+        plane.rotation.x = 1.5 * Math.PI;
+        plane.position.set(0, -1, 0);
+        scene.add(plane);
+        
+        // create ambient light
+        var ambientLight = new THREE.AmbientLight(0x000c0c);
+        scene.add(ambientLight);
+
+        // create sphere
+        const geometry2 = new THREE.SphereGeometry(2, 128, 64);
+        const material2 = new THREE.MeshStandardMaterial({ color: 0x00ff00 , flatShading : true});
+        const sphere2 = new THREE.Mesh(geometry2, material2);
+        sphere2.position.y = 5;
+        scene.add(sphere2);
+
+
+        const geometry3 = new THREE.SphereGeometry(2, 32, 16);
+        const material3 = new THREE.MeshPhongMaterial({ color: 0xFFD700 , flatShading : true,  side: THREE.Backside}); 
+        const sphere3 = new THREE.Mesh(geometry3, material3);
+        sphere3.position.y = 10;
+        scene.add(sphere3);
+
+        gui.add(material2, 'metalness', 0, 1,   0.01);
+        gui.add(material2, 'roughness', 0, 1, 0.01);
+        gui.add(material3, 'shininess', 0, 300).name('Shininess');
+        // var sides = {
+        //     FrontSide: THREE.FrontSide,
+        //     BackSide: THREE.BackSide,
+        //     DoubleSide: THREE.DoubleSide
+        // };
+        // gui.add(pmaterial, 'side', sides).name('side').onChange(function() { pmaterial.needsUpdate = true; });
+
+        var sides = {
+            FrontSide: THREE.FrontSide,
+            BackSide: THREE.BackSide,
+            DoubleSide: THREE.DoubleSide
+        };
+
+        gui.add(material3, 'side', Object.keys(sides)).name('side').onChange(function(value) {
+            material3.side = sides[value]; // Update pmaterial.side with the selected value from sides
+            material3.needsUpdate = true;
+        });
+
+        // var options={
+        //     side: {
+        //         'FrontSide': THREE.FrontSide, 
+        //         'BackSide' : THREE.BackSide,
+        //         'DoubleSide' : THREE.DoubleSide
+        //     }
+        // }
+        // function changeSide(sideKey){
+        //     pmaterial.material.side=options.side(sideKey);
+        // }
+        // gui.add(pmaterial, 'side', {FrontSide:0, Backside:1, DoubleSide:2}).onChange(value=> { 
+        //     pmaterial.side=parseInt(value); 
+        //     pmaterial.needsUpdate = true; 
+        // });
+        gui.add(material3, 'flatShading').name('flatshading').onChange(() => {material3.needsUpdate = true;});
+        
+
+        document.getElementById("webgl-output").appendChild(renderer.domElement);
+
+        function renderScene() {
+            controls.update();  
+            requestAnimationFrame(renderScene);
+            renderer.render(scene, camera);
+        }
+
+        renderScene();
+    </script>
+</body>
+
+</html>

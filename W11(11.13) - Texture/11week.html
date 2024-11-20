@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>ThreeJS
+    </title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="./OrbitControls.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgl-output"></div>
+    <script>
+
+        function init() {
+
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(
+                45,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            const gui = new dat.GUI();
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(new THREE.Color(0x000000));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            //화면 마우스로 회전시키기
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            camera.position.set(-20, 20, 20);
+            controls.update();
+
+            var axes = new THREE.AxesHelper(15);
+            scene.add(axes);
+
+            const color = 0x000000;
+            const intensity = 1;
+            const light = new THREE.DirectionalLight(color, intensity);
+            light.position.set(-10, 2, 4);
+            scene.add(light);
+
+            gui
+                .add(axes, 'visible')
+                .name("축표시")
+
+            function updateCamera() {
+                camera.updateProjectionMatrix()
+            }
+            var ambientLight = new THREE.AmbientLight(0xffffff);
+            scene.add(ambientLight);
+
+
+            ////// PPT  실습 코드 ///
+            let image_sample = "brick-wall-1890-1467111.jpg";
+            let image_sample2 = "stars.png";
+            let image_sample3 = "pokeball.png";
+            
+             ////// PPT  실습 코드1 ///
+
+             const textureLoader = new THREE.TextureLoader();
+            const brickWallbasecolor = textureLoader.load(image_sample);
+
+
+
+            const geometry = new THREE.BoxGeometry( 3, 3, 3 );
+            const material = new THREE.MeshBasicMaterial({map: brickWallbasecolor});
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.y = 3
+            cube.position.x = -8
+
+            scene.add(cube);
+
+            ////// PPT  실습 코드2 ///
+
+            const geometry2 = new THREE.BoxGeometry( 3, 3, 3 );
+            const material2 = new THREE.MeshStandardMaterial({map: brickWallbasecolor});
+            const cube2 = new THREE.Mesh(geometry2, material2);
+            cube.position.y = 3
+            cube.position.x = 18
+            scene.add(cube);
+
+            ////// PPT  실습 코드3 ///
+
+            const brickWallnormalMap = textureLoader.load(image_sample);
+            const geometry3 = new THREE.BoxGeometry( 10, 10, 10 );
+            const material3 = new THREE.MeshStandardMaterial({map: brickWallbasecolor , normalMap:brickWallnormalMap });
+            const cube3 = new THREE.Mesh(geometry, material3);
+            cube3.position.y = 3
+            cube3.position.x = -8
+            scene.add(cube3);
+
+            ////// PPT  실습 코드4 ///
+
+             const brickWallheightMap = textureLoader.load(image_sample);
+             const plane3 = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 512, 512), new THREE.MeshStandardMaterial({ map: brickWallbasecolor, normalMap: brickWallnormalMap, 
+                displacementMap: brickWallheightMap, displacementScale: -0.5 }))
+            plane3.position.y = 3
+            plane3.position.x = -3.6
+            scene.add(plane3)
+
+            ////// PPT  실습 코드5 ///
+
+            const brickWallroughnessMap = textureLoader.load("brick-wall-1890-1467111.jpg");
+            const plane4 = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 512, 512), new THREE.MeshStandardMaterial({ map: brickWallbasecolor, normalMap: brickWallnormalMap, displacementMap: brickWallheightMap, displacementScale: 0.05,roughnessMap: brickWallroughnessMap, roughness: 0.25 }))
+            plane4.position.y = 3
+            plane4.position.x = -1.4
+            scene.add(plane4)
+
+            ////// PPT  실습 코드6 ///
+
+            const brickWallambientOcclusionMap = textureLoader.load("brick-wall-1890-1467111.jpg");
+            const plane5 = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 512, 512), new THREE.MeshStandardMaterial({ map: brickWallbasecolor, normalMap: brickWallnormalMap, displacementMap: brickWallheightMap, displacementScale: 0.05, roughnessMap: brickWallroughnessMap, roughness: 0.25, aoMap: brickWallambientOcclusionMap }))
+            plane5.geometry.attributes.uv2 = plane5.geometry.attributes.uv;
+            plane5.position.y = 3
+            plane5.position.x = 0.8
+            scene.add(plane5)
+
+            ////// PPT  실습 코드7 ///
+
+            const metalTilesmetallic = textureLoader.load("brick-wall-1890-1467111.jpg");
+
+
+            const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(1, 512, 512), new THREE.MeshStandardMaterial({ map: brickWallbasecolor, normalMap: brickWallnormalMap, displacementMap: brickWallheightMap, displacementScale: 0.08, roughnessMap: brickWallroughnessMap, roughness: 1, aoMap: brickWallambientOcclusionMap, metalnessMap: metalTilesmetallic, metalness: 0.8}))
+            sphere1.position.y = 3
+            sphere1.position.x = 0
+            sphere1.position.z = 3
+
+            scene.add(sphere1)
+
+            ////// PPT  실습 코드8 ///
+
+
+
+
+
+
+
+
+            document.getElementById("webgl-output").appendChild(renderer.domElement);
+            renderScene();
+
+            function renderScene() {
+                // cube.rotation.x-=0.1;
+                // cube.rotation.y+=0.01;
+                // cube.rotation.z-=0.01;
+
+                controls.update()
+                requestAnimationFrame(renderScene);
+                renderer.render(scene, camera);
+
+            }
+        }
+        window.onload = init;
+    </script>
+</body>
+
+</html>

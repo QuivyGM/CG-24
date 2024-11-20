@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokemonCenter</title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/lights/RectAreaLightUniformsLib.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgl-output"></div>
+    <script type="module">
+
+        function main() {
+            
+        /*--------------------------------------- camera settings ---------------------------------------*/
+        // set camera as perspective camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(-20, 40, 40);
+        camera.lookAt(0, 0, 0);
+        /*--------------------------------------- camera movement ---------------------------------------*/
+        // use PointerLockControls for  better movement ( 더 자유럽고 자연스러운 카메라 움직임 )
+        const controls = new THREE.PointerLockControls(camera, document.body); // set controls as PointerLockControls ( 카메라 컨트롤러 활성화 )
+        document.addEventListener('click', () => controls.lock());             // lock the controls on user document click ( 클릭시 컨트롤러 활성화 )
+
+        // camera movement speed variables ( 카메라 이동속도변수 )
+        const speed = 0.5;
+        const verticalSpeed = 0.3;
+        // movement directions - set as false so the camera doesn't move when no keys are pressed ( 키가 눌리지 않았을때 카메라가 움직이지 않도록 false로 설정 )
+        const move = { forward: false, backward: false, left: false, right: false, up: false, down: false };
+
+        // when key is pressed change setting to true ( 키가 눌렸을때 true로 설정 )
+        document.addEventListener('keydown', (event) => {
+            switch (event.code) {
+            case 'KeyW': move.forward = true; break;
+            case 'KeyS': move.backward = true; break;
+            case 'KeyA': move.left = true; break;
+            case 'KeyD': move.right = true; break;
+            case 'Space': move.up = true; break;
+            case 'ShiftLeft': move.down = true; break;
+            }
+        });
+        // when key is released change setting to false ( 키가 떼어졌을때 false로 설정 )
+        document.addEventListener('keyup', (event) => {
+            switch (event.code) {
+            case 'KeyW': move.forward = false; break;
+            case 'KeyS': move.backward = false; break;
+            case 'KeyA': move.left = false; break;
+            case 'KeyD': move.right = false; break;
+            case 'Space': move.up = false; break;
+            case 'ShiftLeft': move.down = false; break;
+            }
+        });
+        
+        /*----------------------------------------- create scene ----------------------------------------*/
+
+        // basic setup
+        const scene = new THREE.Scene();
+        const loader = new THREE.TextureLoader();
+
+        // set skybox texture
+        new THREE.TextureLoader().load('texture/sky.png', function (texture) {
+            scene.background = texture;
+        });
+
+        // create plane and add texture
+        {
+            const planeGeometry = new THREE.PlaneGeometry(100, 80);
+            const planeTexture = loader.load('texture/grass.png', function (texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(10, 10); // Adjust the repeat values as needed
+            });
+            const planeMaterial = new THREE.MeshPhongMaterial({ map: planeTexture, side: THREE.DoubleSide });
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.rotation.x = -Math.PI / 2; // Rotate the plane to be horizontal
+            scene.add(plane);
+        }
+
+        /*------------------- light setting -------------------*/
+
+        // Ambient light
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+        scene.add(ambientLight);
+
+        // Hemisphere light
+        const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1); // sky color, ground color, intensity
+        scene.add(hemisphereLight);
+
+        // rectArea light
+        THREE.RectAreaLightUniformsLib.init();
+        const rectLight = new THREE.RectAreaLight(0xffffff, 10, 10, 10);
+        rectLight.position.set(20, 18, -15);
+        scene.add(rectLight);
+
+        /*------------------- texture function -------------------*/
+        
+        // colors
+        const wall_white = new THREE.MeshPhongMaterial({ color: '#d6d6cd', shininess: 100, reflectivity: 0.5, metalness: 0.3, roughness: 0.7, side: THREE.DoubleSide });
+        const white_shad = new THREE.MeshPhongMaterial({ color: '#b0b0a8', shininess: 100, reflectivity: 0.5, metalness: 0.3, roughness: 0.7, side: THREE.DoubleSide });
+        const wall_red = new THREE.MeshPhongMaterial({ color: '#990000', shininess: 50, reflectivity: 0.5, metalness: 0.3, roughness: 0.7, side: THREE.DoubleSide });
+        const wall_brown = new THREE.MeshPhongMaterial({ color: '#3e321f' })
+        const black = new THREE.MeshPhongMaterial({ color: '#000000' });
+        const orange = new THREE.MeshPhongMaterial({ color: '#f5aa42' });
+        const sidewalk_grey = new THREE.MeshPhongMaterial({ color: '#707070', side: THREE.DoubleSide });
+        const blackMetal = new THREE.MeshPhongMaterial({ color: '#2B2D2F', shininess: 0, metalness: 0.5, roughness: 1, side: THREE.DoubleSide });
+        const lightMat = new THREE.MeshBasicMaterial({ color: "#FFDF99", transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        const window_blue = new THREE.MeshPhongMaterial({ color: '#91c4c5', transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+
+        // textures
+        const centerFloor = new THREE.MeshPhongMaterial({ 
+            map: loader.load('texture/centerFloor.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(6, 4); // Adjust the repeat values as needed
+            })
+        });
+        const whiteTile = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/whiteTile.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            // Adjust repeat values based on the object's dimensions
+            texture.needsUpdate = true;
+            }),
+            side: THREE.DoubleSide
+        });
+        const dirt = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/dirt.png', function (texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(10, 1); // Adjust the repeat values as needed
+            })
+        });
+        const centerLogo = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/centerLogo2.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            }),
+            side: THREE.DoubleSide
+        });
+        const barkMat = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/bark.png', function (texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            })
+        });
+        const leafMat = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/leaf2.png', function (texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(3, 3); // Adjust the repeat values as needed
+            })
+        });
+        const water = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/water.png', function (texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(5, 1); // Adjust the repeat values as needed
+            })
+        });
+        const riverDirt = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/dirt2.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(10, 1); // Adjust the repeat values as needed
+            }),
+            side: THREE.DoubleSide
+        });
+        const bushMat2 = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/bush2.png', function (texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            })
+        });
+        const stone = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/stone.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            }),
+            side: THREE.DoubleSide
+        });
+        const poster = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/poster.png', function (texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            }),
+            side: THREE.DoubleSide
+        });
+        const nurse = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/nurse.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            }),
+            transparent: true, // Enable transparency
+            opacity: 1, // Adjust the opacity as needed
+            side: THREE.DoubleSide
+        });
+        const chansey = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/chansey.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            }),
+            transparent: true, // Enable transparency
+            opacity: 1, // Adjust the opacity as needed
+            side: THREE.DoubleSide
+        });
+        const poke_screen = new THREE.MeshPhongMaterial({
+            map: loader.load('texture/poke_screen.png', function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            }),
+            side: THREE.DoubleSide
+        });
+
+        // Example: Dynamically set the texture repeat based on an object's size
+        function applyTextureRepeat(material, geometry) {
+            const size = new THREE.Vector3();
+            geometry.computeBoundingBox(); // Ensure geometry has a bounding box
+            geometry.boundingBox.getSize(size); // Get the size of the bounding box
+
+            const texture = material.map;
+            if (texture) {
+                texture.repeat.set(size.x, size.y); // Adjust the repeat values
+            }
+        }
+
+        /*------------------- Basic geometry functions -------------------*/
+
+        function createBox(x, y, z, material, w, h, d, rotationX = 0, rotationY = 0, rotationZ = 0) {
+                const geometry = new THREE.BoxGeometry(w, h, d);
+                //applyTextureRepeat(material, geometry);
+                const box = new THREE.Mesh(geometry, material);
+                box.position.set(x, h/2+y, z);
+                box.rotation.set(rotationX, rotationY, rotationZ);
+                return box;
+            }
+        function createSphere(x, y, z, material, radius) {
+            const geometry = new THREE.SphereGeometry(radius, 32, 32);
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(x, y, z);
+            return sphere;
+        }
+        function createHalfSphere(x, y, z, material, radius) {
+                    const geometry = new THREE.SphereGeometry(radius, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+                    const halfSphere = new THREE.Mesh(geometry, material);
+                    halfSphere.position.set(x, y, z);
+                    return halfSphere;
+                }
+        function createCylinder(x, y, z, material, radius1 = 1, radius2 = 1, height = 1, openEnded = false, thetaLength = 2) {
+            const geometry = new THREE.CylinderGeometry(radius1, radius2, height, 32, 1, openEnded, 0, thetaLength * Math.PI);
+            const cylinder = new THREE.Mesh(geometry, material);
+            cylinder.position.set(x, height/2 + y, z);
+            return cylinder;
+        }
+        function createTube(x = 0, y = 0, z = 0, material, inner, outer, height, thetaLength = 2) {
+            const tube = new THREE.Group();
+            const innerCynGeo = new THREE.CylinderGeometry(inner, inner, height, 64, 1, true, 0, Math.PI * thetaLength);
+            const outerCynGeo = new THREE.CylinderGeometry(outer, outer, height, 64, 1, true, 0, Math.PI * thetaLength);
+            const ringGeo = new THREE.RingGeometry(inner, outer, 64, 1, 0, Math.PI * thetaLength);
+            const innerCyn = new THREE.Mesh(innerCynGeo, material);
+            const outerCyn = new THREE.Mesh(outerCynGeo, material);
+            const ring1 = new THREE.Mesh(ringGeo, material);
+            const ring2 = new THREE.Mesh(ringGeo, material);
+            tube.add(innerCyn);
+            innerCyn.add(outerCyn);
+            tube.add(ring1);
+            tube.add(ring2);
+            ring1.rotation.x = Math.PI / 2;
+            ring2.rotation.x = Math.PI / 2;
+            ring1.position.y = height / 2;
+            ring2.position.y = -height / 2;
+            tube.position.set(x, height/2+y, z);
+            return tube;
+            }
+        function createQuarterSphere(x, y, z, material, radius) {
+                const geometry = new THREE.SphereGeometry(radius, 32, 32, 0, Math.PI / 2, 0, Math.PI / 2);
+                const quarterSphere = new THREE.Mesh(geometry, material);
+                quarterSphere.position.set(x, y, z);
+                return quarterSphere;
+            }
+        function createTetra(x, y, z, material, radius, detail, rotation = 0) {
+            const geometry = new THREE.TetrahedronGeometry(radius, detail);
+            const tetra = new THREE.Mesh(geometry, material);
+            tetra.position.set(x, radius/2-y, z);
+            tetra.rotation.x = Math.PI * rotation;
+            return tetra;
+        }
+        function createRing(x, y, z, material, inner, outer, thetaLength = 2) {
+            const geometry = new THREE.RingGeometry(inner, outer, 64, 1, 0, Math.PI * thetaLength);
+            const ring = new THREE.Mesh(geometry, material);
+            ring.position.set(x, y, z);
+            return ring;
+        }
+        
+        /*------------------- Object functions -------------------*/
+
+        function lamps(x, y, z, n = 1) {
+            const lamp = new THREE.Group();
+            lamp.scale.set(n, n, n);
+
+            const lamp_base = new THREE.Group();
+            lamp_base.add(createCylinder(0, 0, 0, blackMetal, 0.7, 0.7, 0.4))
+            lamp_base.add(createCylinder(0, 0.3, 0, blackMetal, 0.6, 0.6, 0.5))
+            lamp_base.add(createCylinder(0, 0.45, 0, blackMetal, 0.5, 0.5, 0.5))
+            lamp_base.add(createCylinder(0, 0.7, 0, blackMetal, 0.3, 0.3, 1))
+            lamp.add(lamp_base);
+
+            const lamp_cone = new THREE.Group();
+            lamp_cone.add(createCylinder(0, 2.5, 0, blackMetal, 0.3, 0.7, 3))
+            lamp_cone.add(createCylinder(0, 5.5, 0, blackMetal, 0.4, 0.3, 0.1))
+            lamp_cone.add(createCylinder(0, 5.6, 0, blackMetal, 0.4, 0.4, 0.1))
+            lamp_cone.add(createCylinder(0, 5.7, 0, blackMetal, 0.5, 0.5, 0.1))
+            lamp_cone.add(createCylinder(0, 5.8, 0, blackMetal, 0.3, 0.3, 0.1))
+            lamp_cone.position.y=-1;
+            lamp_base.add(lamp_cone);
+
+            const lamp_pole = new THREE.Group();
+            lamp_pole.add(createCylinder(0, 9, 0, blackMetal, 0.2, 0.2, 12))
+            lamp_pole.add(createCylinder(0, 10, 0, blackMetal, 0.3, 0.3, 0.1))
+            lamp_pole.add(createCylinder(0, 18, 0, blackMetal, 0.3, 0.3, 1))
+            lamp_pole.add(createCylinder(0, 18.1, 0, blackMetal, 0.4, 0.4, 0.5))
+            lamp_pole.position.y=-3.5;
+            lamp_cone.add(lamp_pole);
+
+            const lamp_head = new THREE.Group();
+            lamp_head.add(createCylinder(0, 0, 0, blackMetal, 0.7, 0.7, 0.1))
+            lamp_head.add(createSphere(0, -0.6, 0, blackMetal, 0.4))
+            lamp_head.add(createCylinder(0, 0.1, 0, lightMat, 0.7, 0.5, 1.5))
+            lamp_head.add(createCylinder(0, 1.6, 0, blackMetal, 0.9, 0.9, 0.15))
+            lamp_head.add(createSphere(0, 1.7, 0, blackMetal, 0.6))
+            lamp_head.add(createCylinder(0, 2.25, 0, blackMetal, 0.05, 0.1, 0.2))
+            lamp_head.add(createBox(0, 0.1, 0.65, blackMetal, 0.07, 1.5, 0.07, 0.15))
+            lamp_head.add(createBox(0, 0.1, -0.65, blackMetal, 0.07, 1.5, 0.07, -0.15))
+            lamp_head.add(createBox(0.65, 0.1, 0, blackMetal, 0.07, 1.5, 0.07, 0, 0, -0.15))
+            lamp_head.add(createBox(-0.65, 0.1, 0, blackMetal, 0.07, 1.5, 0.07, 0, 0, 0.15))
+            lamp_head.position.y = 21;
+            lamp_pole.add(lamp_head);
+
+            const lamp_light = new THREE.PointLight(0xffffbb, 1, 20);
+            lamp_light.position.set(0, 1, 0);
+            lamp_head.add(lamp_light);
+
+            lamp.position.set(x, y, z);
+            return lamp;
+        }
+        
+        function tree(x, y, z) {
+            const tree = new THREE.Group();
+            tree.scale.set(0.7, 0.7, 0.7)
+
+            tree.add(createCylinder(0, 0, 0, barkMat, 5, 5, 10))
+            const leaves = new THREE.Group();
+            //main
+            leaves.add(createCylinder(0, 0, 0, leafMat, 0, 15, 15));
+            leaves.add(createCylinder(0, 6, 0, leafMat, 0, 14, 15));
+            leaves.add(createCylinder(0, 12, 0, leafMat, 0, 12, 20));
+
+            leaves.position.y = 7;
+            tree.add(leaves);
+            tree.position.set(x, y, z);
+            return tree;
+        }
+        
+        function Bushline(x, y, z, rotation = 0, n) {
+                const bushline = new THREE.Group();
+                bushline.add(createTetra(0, 0, 0, bushMat2, 3, 10, 0.1));
+                bushline.add(createTetra(6, 0, 0, bushMat2, 3, 3, 0.4));
+                bushline.add(createTetra(12, 0, 0, bushMat2, 3, 3, 0.7));
+                bushline.add(createTetra(18, 0, 0, bushMat2, 3, 3, 0.3));
+                bushline.add(createTetra(24, 0, 0, bushMat2, 3, 3, 0.3));
+                bushline.add(createTetra(30, 0, 0, bushMat2, 3, 3, 0.3));
+                
+
+                bushline.position.set(x, y, z);
+                bushline.rotation.y = Math.PI * rotation;
+                bushline.scale.set(n, n, n)
+                return bushline;
+            }
+
+        /*------------------ building functions ------------------*/
+
+        function PokeCenter(){
+            const centerH = 13;
+            const PokeCenter = new THREE.Group();
+            function firstFloor(){
+                const centerWalls = new THREE.Group();
+                // floor
+                centerWalls.add(createBox(0, 0.8, 0, centerFloor, 36, 0.1, 21));
+                centerWalls.add(createBox(0, 0, 11.2, whiteTile, 35, 1.0, 2.2));
+                centerWalls.add(createBox(0, 0, -11.2, whiteTile, 35, 1.0, 2.2));
+                centerWalls.add(createBox(19, 0, 0, whiteTile, 2.2, 1.0, 18.5));
+                centerWalls.add(createBox(-19, 0, 0, whiteTile, 2.2, 1.0, 18.5));
+
+                // lower rim
+                centerWalls.add(createBox(0, 0, 13, blackMetal, 30, 1, 0.5));
+                centerWalls.add(createBox(0, 0, -13, blackMetal, 30, 1, 0.5));
+                centerWalls.add(createBox(20.5, 0, 0, blackMetal, 0.5, 1, 15));
+                centerWalls.add(createBox(-20.5, 0, 0, blackMetal, 0.5, 1, 15));
+                
+                // [[front wall]]
+                function createFrontWall(n) {
+                    const frontWall = new THREE.Group();
+                    // lower
+                    frontWall.add(createBox(10 * n, 0, 12.5, wall_white, 10, centerH - 5, 0.5));
+                    // upper
+                    frontWall.add(createBox(10 * n, centerH - 1, 12.5, wall_white, 10, 1, 0.5));
+                    // highlights
+                    frontWall.add(createBox(12 * n, 0, 12.6, white_shad, 0.1, 5, 0.5));
+                    frontWall.add(createBox(10 * n, 5, 12.6, white_shad, 10, 0.1, 0.5));
+                    // black pillar
+                    frontWall.add(createBox(15 * n, 0, 12.76, blackMetal, 1, centerH, 1));
+                    // window
+                    frontWall.add(createBox(10 * n, centerH - 5, 12.5, blackMetal, 9, 1, 0.5));
+                    frontWall.add(createBox(6 * n, centerH - 5, 12.5, blackMetal, 1, 4, 0.5));
+                    frontWall.add(createBox(15 * n, centerH - 5, 12.5, blackMetal, 1, 4, 0.5));
+                    frontWall.add(createBox(10 * n, centerH - 5, 12.5, window_blue, 9, 3, 0.1));
+                    frontWall.add(createBox(10 * n, centerH - 2, 12.5, blackMetal, 9, 1, 0.5));
+                    return frontWall;
+                }
+
+                centerWalls.add(createFrontWall(1));
+                centerWalls.add(createFrontWall(-1));
+
+                // [[back wall]]
+                centerWalls.add(createBox(0, 0, -12.5, wall_white, 30, centerH, 0.5));
+                centerWalls.add(createBox(15, 0, -12.76, blackMetal, 1, centerH, 1));
+                centerWalls.add(createBox(-15, 0, -12.76, blackMetal, 1, centerH, 1));
+                centerWalls.add(createBox(0, 0, -12.76, blackMetal, 1, centerH, 1));
+                // highlights
+                centerWalls.add(createBox(0, 7, -12.6, white_shad, 30, 0.1, 0.5));
+                centerWalls.add(createBox(10, 0, -12.6, white_shad, 0.1, 7, 0.5));
+                centerWalls.add(createBox(-10, 0, -12.6, white_shad, 0.1, 7, 0.5));
+                
+                // [[side walls]]
+                function createSideWall(n){
+                    const sideWall = new THREE.Group();
+                    sideWall.add(createBox(20*n, 0, 0, wall_white, 0.5, centerH-7, 15));
+                    sideWall.add(createBox(20*n, 6, 6.5, wall_white, 0.5, 7, 2));
+                    sideWall.add(createBox(20*n, 6, -6.5, wall_white, 0.5, 7, 2));
+                    // window
+                    sideWall.add(createBox(20*n, 11, 0, wall_white, 0.5, 2, 11));
+                    sideWall.add(createBox(20*n, 6, 0, window_blue, 0.1, 5, 11));
+                    sideWall.add(createBox(20 * n, 6, 0, blackMetal, 0.5, 1, 11));
+                    
+                    sideWall.add(createBox(20 * n, 6, 2, blackMetal, 0.5, 5, 0.5));
+                    sideWall.add(createBox(20 * n, 6, -2, blackMetal, 0.5, 5, 0.5));
+
+                    // black pillar
+                    sideWall.add(createBox(20.5 * n, 0, 8, blackMetal, 0.5, centerH, 1));
+                    sideWall.add(createBox(20.5 * n, 0, -8, blackMetal, 0.5, centerH, 1));
+
+                    // highlights
+                    sideWall.add(createBox(20.1 * n, 0, 0, white_shad, 0.5, 5, 0.1));
+                    sideWall.add(createBox(20.1 * n, 5, 0, white_shad, 0.5, 0.1, 15));
+
+                    return sideWall;
+                }
+                centerWalls.add(createSideWall(1));
+                centerWalls.add(createSideWall(-1));
+                
+                // corners
+                function createCorner(){
+                    const corners = new THREE.Group();
+                    function createCornerTube(x, y, z, rotationY) {
+                        const cornerTube = new THREE.Group();
+                        cornerTube.add(createTube(x, y, z, wall_white, 4.75, 5.25, centerH, 0.5).rotateY(rotationY));
+                        cornerTube.add(createTube(x, y, z, wall_white, 4.75, 5.4, 2, 0.5).rotateY(rotationY));
+                        cornerTube.add(createTube(x, y, z, blackMetal, 5, 5.75, 1, 0.5).rotateY(rotationY));
+                        return cornerTube;
+                    }
+
+                    corners.add(createCornerTube(15, 0, 7.5, 0));
+                    corners.add(createTube(19.75, 0, 12.25, white_shad, 3, 3.5, centerH, 0.5).rotateY(Math.PI));
+
+                    corners.add(createCornerTube(15, 0, -7.5, Math.PI / 2));
+                    corners.add(createTube(19.75, 0, -12.25, white_shad, 3, 3.5, centerH, 0.5).rotateY(-Math.PI / 2));
+
+                    corners.add(createCornerTube(-15, 0, -7.5, Math.PI));
+                    corners.add(createTube(-19.75, 0, -12.25, white_shad, 3, 3.5, centerH, 0.5));
+
+                    corners.add(createCornerTube(-15, 0, 7.5, -Math.PI / 2));
+                    corners.add(createTube(-19.75, 0, 12.25, white_shad, 3, 3.5, centerH, 0.5).rotateY(Math.PI / 2));
+                    return corners;
+                }
+                centerWalls.add(createCorner());
+
+                // door
+                function createDoor(){
+                    const door = new THREE.Group();
+                    // left rim
+                    door.add(createCylinder(0, 0, 12.5, wall_white, 5, 5, 14, true, 0.25).rotateY(Math.PI / -2));
+                    door.add(createCylinder(0, 0, 12.5, wall_white, 5.5, 5.5, 14, true, 0.25).rotateY(Math.PI / -2));
+                    door.add(createBox(-3.5, 0, 16.5, blackMetal, 0.5, 14, 1, 0, 0.8));
+                    // right rim
+                    door.add(createCylinder(0, 0, 12.5, wall_white, 5, 5, 14, true, 0.25).rotateY(Math.PI / 4));
+                    door.add(createCylinder(0, 0, 12.5, wall_white, 5.5, 5.5, 14, true, 0.25).rotateY(Math.PI / 4));
+                    door.add(createBox(3.5, 0, 16.5, blackMetal, 0.5, 14, 1, 0, -0.8));
+                    // door roof
+                    // door.add(createCylinder(0, 0.55, 12.5, marble, 5.5, 5.5, 0.1));
+                    door.add(createCylinder(0, 0.51, 12.5, stone, 5.3, 5.3, 0.5, false, 1).rotateY(Math.PI / -2));
+                    door.add(createCylinder(0, 0, 12.5, stone, 8, 8, 0.5));
+                    door.add(createCylinder(0, 13, 12.5, wall_white, 6, 6, 2, false, 1).rotateY(Math.PI / -2));
+                    door.add(createQuarterSphere(0, 14, 12.5, wall_red, 5.8).rotateY(Math.PI / 2));
+                    door.add(createQuarterSphere(0, 14, 12.5, wall_red, 5.8));
+                    door.add(createCylinder(0, 14, 12, blackMetal, 5.7, 5.7, 1, false, 1).rotateY(Math.PI / -2).rotateZ(Math.PI / 2));
+                    
+
+                    door.add(createCylinder(0, 0, 12.5, window_blue, 5.25, 5.25, 14, true, 0.25).rotateY(Math.PI / -4));
+                    door.add(createCylinder(0, 0, 12.5, window_blue, 5.25, 5.25, 14, true, 0.25).rotateY(0));
+
+                    return door;
+                }
+                centerWalls.add(createDoor());
+                
+                return centerWalls
+            }
+            function centerRoof(){
+                const centerRoof = new THREE.Group();
+                //ledge-front
+                centerRoof.add(createCylinder(0, -18.5, 12, wall_red, 1.9, 1.9, 40, 0).rotateZ(Math.PI / 2));
+                centerRoof.add(createCylinder(0, -18.5, -12, wall_red, 1.9, 1.9, 40, 0).rotateZ(Math.PI / 2));
+                centerRoof.add(createCylinder(20, -10.5, 0, wall_red, 1.9, 1.9, 24, 0).rotateX(Math.PI / 2));
+                centerRoof.add(createCylinder(-20, -10.5, 0, wall_red, 1.9, 1.9, 24, 0).rotateX(Math.PI / 2));
+                centerRoof.add(createBox(0, 1, 12, wall_white, 40, 1, 3.8));
+                centerRoof.add(createBox(0, 1, -12, wall_white, 40, 1, 3.8));
+                centerRoof.add(createBox(20, 1, 0, wall_white, 3.8, 1, 24));
+                centerRoof.add(createBox(-20, 1, 0, wall_white, 3.8, 1, 24));
+                
+                //ledge corners
+                centerRoof.add(createSphere(19.9, 1.5, 11.9, wall_red, 1.95));
+                centerRoof.add(createSphere(19.9, 1.5, -11.9, wall_red, 1.95));
+                centerRoof.add(createSphere(-19.9, 1.5, -11.9, wall_red, 1.95));
+                centerRoof.add(createSphere(-19.9, 1.5, 11.9, wall_red, 1.95));
+
+                centerRoof.add(createCylinder(19.9, 1, 11.9, wall_white, 2, 2, 1));
+                centerRoof.add(createCylinder(19.9, 1, -11.9, wall_white, 2, 2, 1));
+                centerRoof.add(createCylinder(-19.9, 1, -11.9, wall_white, 2, 2, 1));
+                centerRoof.add(createCylinder(-19.9, 1, 11.9, wall_white, 2, 2, 1));
+                
+                //second floor
+                
+
+                function createSecondFloor(){
+                    const secondFloor = new THREE.Group();
+                    
+                    function long_window(n){
+                        secondFloor.add(createBox(0, 2.75, 12*n, blackMetal, 38, 1, 0.5));
+                        secondFloor.add(createBox(0, 6.5, 12*n, blackMetal, 38, 0.5, 0.5));
+                        secondFloor.add(createBox(0, 3.5, 12*n, window_blue, 38, 3, 0.1));
+                        secondFloor.add(createBox(3, 3.5, 12*n, blackMetal, 0.5, 3, 0.5));
+                        secondFloor.add(createBox(7, 3.5, 12*n, blackMetal, 0.5, 3, 0.5));
+                        secondFloor.add(createBox(15, 3.5, 12*n, blackMetal, 1, 3, 0.5));
+                        secondFloor.add(createBox(-3, 3.5, 12*n, blackMetal, 0.5, 3, 0.5));
+                        secondFloor.add(createBox(-7, 3.5, 12*n, blackMetal, 0.5, 3, 0.5));
+                        secondFloor.add(createBox(-15, 3.5, 12*n, blackMetal, 1, 3, 0.5));
+                    }
+                    // front window
+                    secondFloor.add(long_window(1));
+                    // back window
+                    secondFloor.add(long_window(-1));
+
+                    // corners
+                    function createCornerWindow(x, y, z, rotationY) {
+                        const cornerWindow = new THREE.Group();
+                        cornerWindow.add(createCylinder(x, y, z, window_blue, 1.05, 1.05, 3, true, 0.5).rotateY(rotationY));
+                        cornerWindow.add(createTube(x, y - 0.25, z, blackMetal, 0.75, 1.25, 0.5, 0.5).rotateY(rotationY));
+                        cornerWindow.add(createTube(x, y + 3, z, blackMetal, 0.75, 1.25, 0.5, 0.5).rotateY(rotationY));
+                        return cornerWindow;
+                    }
+
+                    secondFloor.add(createCornerWindow(19, 3.5, 11, 0));
+                    secondFloor.add(createCornerWindow(-19, 3.5, 11, -Math.PI / 2));
+                    secondFloor.add(createCornerWindow(19, 3.5, -11, Math.PI / 2));
+                    secondFloor.add(createCornerWindow(-19, 3.5, -11, Math.PI));
+                    
+                    function short_windows(n){
+                        secondFloor.add(createBox(20*n, 2.75, 0, blackMetal, 0.5, 1, 22.5));
+                        secondFloor.add(createBox(20*n, 6.5, 0, blackMetal, 0.5, 0.5, 22.5));
+                        secondFloor.add(createBox(20*n, 3.5, 0, window_blue, 0.1, 3, 22.5));
+                        secondFloor.add(createBox(20*n, 3.5, 0, blackMetal, 0.5, 3, 0.5));
+                        secondFloor.add(createBox(20*n, 3.5, 7.25, blackMetal, 0.5, 3, 0.5));
+                        secondFloor.add(createBox(20*n, 3.5, -7.25, blackMetal, 0.5, 3, 0.5));
+                    }
+                    // right window
+                    secondFloor.add(short_windows(1));
+                    // left window
+                    secondFloor.add(short_windows(-1));
+                    // box
+                    secondFloor.add(createBox(0, 7, 0, wall_red, 34, 0.1, 26));
+                    
+                    secondFloor.add(createBox(0, 7, 0, wall_red, 42, 0.1, 19));
+
+
+                    secondFloor.add(createCylinder(0, -10.25, 9, wall_red, 4, 4, 34.5, true, 0.5).rotateZ(Math.PI / 2));
+                    secondFloor.add(createCylinder(0, -10.25, -9, wall_red, 4, 4, 34.5, true, 0.5).rotateZ(Math.PI / 2).rotateY(Math.PI / 2));
+
+                    secondFloor.add(createCylinder(17, -2.25, 0, wall_red, 4, 4, 18.5, true, 0.5).rotateX(-Math.PI / 2));
+                    secondFloor.add(createCylinder(-17, -2.25, 0, wall_red, 4, 4, 18.5, true, 0.5).rotateX(-Math.PI / 2).rotateY(-Math.PI / 2));
+                    secondFloor.add(createBox(0, 10.9, 0, wall_red, 34, 0.1, 18));
+
+                    function createQuarterSphere(x, y, z, material, radius) {
+                        const geometry = new THREE.SphereGeometry(radius, 32, 32, 0, Math.PI / 2, 0, Math.PI / 2);
+                        const quarterSphere = new THREE.Mesh(geometry, material);
+                        quarterSphere.position.set(x, y, z);
+                        return quarterSphere;
+                    }
+                    
+                    secondFloor.add(createQuarterSphere(17, 7, 9, wall_red, 4).rotateY(Math.PI / 2));
+                    secondFloor.add(createCylinder(17, 7, 9, wall_red, 4, 4, 0.1));
+
+                    secondFloor.add(createQuarterSphere(17, 7, -9, wall_red, 4).rotateY(-Math.PI / 1));
+                    secondFloor.add(createCylinder(17, 7, -9, wall_red, 4, 4, 0.1));
+
+                    secondFloor.add(createQuarterSphere(-17, 7, -9, wall_red, 4).rotateY(-Math.PI / 2));
+                    secondFloor.add(createCylinder(-17, 7, -9, wall_red, 4, 4, 0.1));
+
+                    secondFloor.add(createQuarterSphere(-17, 7, 9, wall_red, 4));
+                    secondFloor.add(createCylinder(-17, 7, 9, wall_red, 4, 4, 0.1));
+                    
+                    secondFloor.add(createCylinder(0, 2.5, 0, wall_red, 5.8, 5.8, 17, false, 1).rotateX(Math.PI / 2).rotateY(Math.PI / 2));
+                    
+                    const logoGeometry = new THREE.PlaneGeometry(5, 5);
+                    const logoPlane = new THREE.Mesh(logoGeometry, centerLogo);
+                    logoPlane.position.set(0, 13.5, 8.55);
+                    logoPlane.rotation.y = Math.PI; // Rotate to face the correct direction
+                    secondFloor.add(logoPlane);
+                    
+
+                    return secondFloor
+                }
+
+
+                //roof
+                centerRoof.add(createSecondFloor());
+                centerRoof.position.y = centerH;
+                return centerRoof
+            }
+            function interior(){
+                const interior = new THREE.Group();
+                
+                // walls
+                interior.add(createBox(0, 0, -12, orange, 35, 5, 0.1));
+                interior.add(createBox(19.6, 0, 0, orange, 0.1, 5, 18));
+                interior.add(createBox(-19.6, 0, 0, orange, 0.1, 5, 18));
+
+                // table
+                interior.add(createBox(-10, 0, -9.5, whiteTile, 1, 4, 5));
+                interior.add(createBox(-10, 4, -9.5, sidewalk_grey, 2, 1, 5));
+                interior.add(createBox(10, 0, -9.5, whiteTile, 1, 4, 5));
+                interior.add(createBox(10, 4, -9.5, sidewalk_grey, 2, 1, 5));
+                // table top
+                interior.add(createCylinder(0, 0, -7, whiteTile, 10.5, 10.5, 4, true, 1).rotateY(Math.PI / -2));
+                interior.add(createCylinder(0, 0, -7, whiteTile, 9.5, 9.5, 4, true, 1).rotateY(Math.PI / -2));
+                interior.add(createCylinder(0, 4, -7, sidewalk_grey, 9, 9, 1, true, 1).rotateY(Math.PI / -2));
+                interior.add(createCylinder(0, 4, -7, sidewalk_grey, 11, 11, 1, true, 1).rotateY(Math.PI / -2));
+                interior.add(createRing(0, 4, -7, sidewalk_grey, 9, 11, 1).rotateX(Math.PI / 2));
+                interior.add(createRing(0, 5, -7, sidewalk_grey, 9, 11, 1).rotateX(Math.PI / 2));
+
+                // poster
+                const posterPlane = new THREE.Mesh(new THREE.PlaneGeometry(3, 4), poster);
+                posterPlane.position.set(14, 8, -12.2);
+                posterPlane.rotation.y = 0;
+                interior.add(posterPlane);
+
+                // TV
+                interior.add(createBox(0, 6.5, -10, white_shad, 15.5, 7.5, 0.5));
+                interior.add(createBox(0, 6.5, -9.84, blackMetal, 15, 7, 0.2));
+                const screen = new THREE.Mesh(new THREE.PlaneGeometry(13, 6), poke_screen);
+                screen.position.set(0, 10, -9.73);
+                screen.rotation.y = 0;
+                interior.add(screen);
+
+                
+                // nurse & chansey
+                const nursePlane = new THREE.Mesh(new THREE.PlaneGeometry(5, 10), nurse);
+                nursePlane.position.set(-2, 5, 0);
+                nursePlane.rotation.y = 0;
+                interior.add(nursePlane);
+                const chanseyPlane = new THREE.Mesh(new THREE.PlaneGeometry(5, 7.5), chansey);
+                chanseyPlane.position.set(3, 5, 0);
+                chanseyPlane.rotation.y = 0;
+                interior.add(chanseyPlane);
+
+                return interior
+            }
+
+            PokeCenter.add(firstFloor());
+            PokeCenter.add(centerRoof());
+            PokeCenter.add(interior());
+            return PokeCenter
+        }
+
+        function road(){
+            const road = new THREE.Group();
+            road.add(createBox(0, 0, 0, dirt, 100, 0.1, 15));
+            road.add(createBox(0, 0, 7.5, sidewalk_grey, 100, 1, 1));
+            road.add(createBox(-20, 0, -7.5, sidewalk_grey, 60, 1, 1));
+            road.add(createBox(40, 0, -7.5, sidewalk_grey, 20, 1, 1));
+            road.add(lamps(-40, 0, -10, 1));
+            road.add(lamps(0, 0, -10, 1));
+            road.add(lamps(40, 0, -10, 1));
+            road.add(lamps(-40, 0, 10, 1));
+            road.add(lamps(0, 0, 10, 1));
+            road.add(lamps(40, 0, 10, 1));
+            
+            return road
+        }
+
+        function forest(){
+            const forest = new THREE.Group();
+            forest.add(tree(-35, 0, -10));
+            forest.add(tree(-15, 0, -10));
+            forest.add(tree(-35, 0, -30));
+            forest.add(tree(-15, 0, -30));
+            return forest
+        }
+
+        function river(){
+            const river = new THREE.Group();
+            function riverPlane(){
+                const riverGeometry = new THREE.PlaneGeometry(100, 20);
+                const riverMaterial = water;
+                const riverPlane = new THREE.Mesh(riverGeometry, riverMaterial);
+                riverPlane.rotation.x = -Math.PI / 2; // Rotate the plane to be horizontal
+                riverPlane.position.set(0, 0.1, 0); // Adjust the position as needed
+                return riverPlane;
+            }
+            function riverBank(){
+                const riverBankGeometry = new THREE.PlaneGeometry(100, 4);
+                const riverBankPlane = new THREE.Mesh(riverBankGeometry, riverDirt);
+                riverBankPlane.rotation.x = Math.PI / -3; // Rotate the plane 45 degrees
+                riverBankPlane.position.set(0, 1, -10.3); // Adjust the position as needed
+                return riverBankPlane;
+            }
+            river.add(riverPlane());
+            river.add(riverBank());
+            river.position.set(0, -2, 52);
+            return river
+        }
+
+        function bushes(){
+            const bushline = new THREE.Group();
+            bushline.add(Bushline(-35, 0, 3, 0, 1));
+            bushline.add(Bushline(-35, 0, 27, 0, 1));
+            bushline.add(Bushline(5, 0, 27, 0, 1));
+            return bushline
+        }
+
+        /*-------------------- scene building --------------------*/
+        // ref: https://pokegalerie.com/products/in-stock-1-20-scale-world-figure-poke-house-poke-center-nurse-joy-chansey
+        PokeCenter = PokeCenter();
+        PokeCenter.position.set(20, 0, -15);
+        scene.add(PokeCenter);
+
+        road = road();
+        road.position.set(0, 0, 15);
+        scene.add(road);
+
+        scene.add(forest());
+        scene.add(river());
+        scene.add(bushes());
+        
+        /*--------------------- render setup ---------------------*/
+        // Renderer setup
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        document.getElementById("webgl-output").appendChild(renderer.domElement);
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Movement directions
+            if (move.forward) controls.moveForward(speed);
+            if (move.backward) controls.moveForward(-speed);
+            if (move.left) controls.moveRight(-speed);
+            if (move.right) controls.moveRight(speed);
+            if (move.up) camera.position.y += verticalSpeed; // Move up
+            if (move.down) camera.position.y -= verticalSpeed; // Move down
+
+            renderer.render(scene, camera);
+        }
+
+        // Resize handling
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+        }
+
+        main();
+    </script>
+</body>
+
+</html>

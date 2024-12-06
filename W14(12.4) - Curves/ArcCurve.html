@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js ArcCurve 예제</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.153.0/three.min.js"></script>
+</head>
+
+<body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 씬(Scene) 생성
+            const scene = new THREE.Scene();
+
+            // 카메라(Camera) 생성
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 10; // 카메라 위치 설정
+
+            // 렌더러(Renderer) 생성
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight); // 렌더링 크기 설정
+            document.body.appendChild(renderer.domElement); // 렌더러를 HTML에 추가
+
+            // ArcCurve 생성
+            var curve = new THREE.ArcCurve(
+                0, 0,               // 원호의 중심 좌표 (x, y)
+                4,                  // 원호의 반지름
+                0, 2 * Math.PI,     // 시작 각도, 끝 각도 (0도에서 360도까지)
+                true                // true: 시계 방향, false: 반시계 방향
+            );
+
+            // 곡선 위의 점 생성
+            var points = curve.getPoints(50); // 50개의 세분화된 점 생성
+            var geometry = new THREE.BufferGeometry().setFromPoints(points); // 점으로부터 기하학 데이터 생성
+
+            // 재질(Material) 생성
+            var material = new THREE.LineBasicMaterial({ color: 0x00FFFF }); // 선의 색상 (청록색)
+
+            // 라인(Line) 객체 생성
+            var arcObject = new THREE.Line(geometry, material); // 기하학과 재질을 결합
+            scene.add(arcObject); // 씬에 라인 추가
+
+            // 애니메이션 및 렌더링
+            function animate() {
+                requestAnimationFrame(animate); // 다음 프레임 요청
+                renderer.render(scene, camera); // 씬과 카메라 렌더링
+            }
+
+            animate(); // 애니메이션 실행
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ThreeJS</title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="./OrbitControls.js"></script>
+    <script src="./GLTFLoader.js"></script>
+    <script src="./PointerLockControls.js"></script>
+    <style>
+        #blocker {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #instructions {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="blocker">
+        <div id="instructions">
+            <p style="font-size:36px">
+                Click to play
+            </p>
+            <p>
+                Move: WASD<br/>
+                Jump: SPACE<br/>
+                Look: MOUSE
+            </p>
+        </div>
+    </div>
+
+    <script>
+        var mixer;
+        function init() {
+            var scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0xffdddd, 0, 750);
+            var camera = new THREE.PerspectiveCamera(
+                45,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+
+            const gui = new dat.GUI();
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(new THREE.Color(0x000000));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            camera.position.set(0, 5, 190);
+
+            // Load a GLTF
+            const loader = new THREE.GLTFLoader();  // GLTFLoader 생성
+            // 중복 생성을 막기 위해 주석 처리
+            // loader.load('squid_game_-_giant_doll/scene.gltf',  // GLTF 파일 로드
+            //     function (gltf) {
+            //         scene.add(gltf.scene);  // GLFT 모델 추가
+            //         gltf.scene.position.set(0, 5, 0);  // 모델 위치 설정
+            //         gltf.scene.castShadow = true;  // 그림자 활성화
+            //     }
+            // );
+
+            // pointer lock controls
+            const velocity = new THREE.Vector3();
+            const direction = new THREE.Vector3();
+
+            let raycaster;
+            let moveForward = false;
+            let moveBackward = false;
+            let moveLeft = false;
+            let moveRight = false;
+            let canJump = false;
+
+            const controls1p = new THREE.PointerLockControls(camera, document.body);
+            const blocker = document.getElementById('blocker');
+            const instructions = document.getElementById('instructions');
+
+            instructions.addEventListener('click', function () {
+                controls1p.lock();
+            });
+            
+            controls1p.addEventListener('lock', function () {
+                instructions.style.display = 'none';
+                blocker.style.display = 'none';
+            });
+
+            controls1p.addEventListener('unlock', function () {
+                blocker.style.display = 'block';
+                instructions.style.display = '';
+            });
+
+            scene.add(controls1p.getObject());
+
+            // 키 눌를때 감지 코드
+            const onKeyDown = function (event) {
+                switch (event.code) {
+                    case 'ArrowUp':
+                    case 'KeyW':
+                        moveForward = true;
+                        break;
+                    case 'ArrowLeft':
+                    case 'KeyA':
+                        moveLeft = true;
+                        break;
+                    case 'ArrowDown':
+                    case 'KeyS':
+                        moveBackward = true;
+                        break;
+                    case 'ArrowRight':
+                    case 'KeyD':
+                        moveRight = true;
+                        break;
+                    case 'Space':
+                        if (canJump === true) velocity.y += 350;
+                        canJump = false;
+                        break;
+                }
+            };
+
+            const onKeyUp = function (event) {
+                switch (event.code) {
+                    case 'ArrowUp':
+                    case 'KeyW':
+                        moveForward = false;
+                        break;
+                    case 'ArrowLeft':
+                    case 'KeyA':
+                        moveLeft = false;
+                        break;
+                    case 'ArrowDown':
+                    case 'KeyS':
+                        moveBackward = false;
+                        break;
+                    case 'ArrowRight':
+                    case 'KeyD':
+                        moveRight = false;
+                        break;
+                }
+            };
+
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+
+            raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
+
+            document.body.appendChild(renderer.domElement);
+
+            // Make simple wall
+            const pgeometry = new THREE.PlaneGeometry(200, 200);  // 바닥 평면 생성
+            const pmaterial = new THREE.MeshLambertMaterial({ side: 2 });
+            pmaterial.color.setHSL(0.095, 1, 0.75);
+            const plane = new THREE.Mesh(pgeometry, pmaterial);
+            plane.rotation.x = 1.5 * Math.PI;
+            plane.receiveShadow = true;
+            plane.position.set(0, 0, 90);
+            scene.add(plane);
+
+            const wgeometry = new THREE.PlaneGeometry(200, 40);  // 북쪽 평면(nplane) 추가
+            const nplane = new THREE.Mesh(wgeometry, pmaterial);
+            nplane.rotation.x = -1.5 * Math.PI;
+            nplane.receiveShadow = true;
+            nplane.position.set(0, 100, 20);
+            plane.add(nplane);
+
+            const wplane = new THREE.Mesh(wgeometry, pmaterial);  // 서쪽 평면(wplane) 추가
+            wplane.rotation.x = -1.5 * Math.PI;
+            wplane.rotation.y = -1.5 * Math.PI;
+            wplane.position.set(-100, 0, 20);
+            plane.add(wplane);
+
+            const eplane = new THREE.Mesh(wgeometry, pmaterial);  // 동쪽 평면(eplane) 추가
+            eplane.rotation.x = -0.5 * Math.PI;
+            eplane.rotation.y = -0.5 * Math.PI;
+            eplane.position.set(100, 0, 20);
+            plane.add(eplane);
+
+            const splane = new THREE.Mesh(wgeometry, pmaterial);  // 남쪽 평면(splane) 추가
+            splane.rotation.x = -0.5 * Math.PI;
+            splane.position.set(0, -100, 20);
+            plane.add(splane);
+
+            // Add light
+            const spotLight = new THREE.SpotLight(0xffffff);
+            spotLight.position.set(0, 100, 90);
+            spotLight.castShadow = true;
+
+            scene.add(spotLight);
+            spotLight.target = plane;
+
+            // animation clip
+            loader.load('squid_game_-_giant_doll/scene.gltf',
+                function(gltf) {
+                    scene.add(gltf.scene);
+                    gltf.scene.position.set(0, 5, 0); // 애니메이션 회전 축을 Y축 (0, 1, 0)으로 정의합니다.
+                    gltf.scene.castShadow = true;
+
+                    // animation
+                    let yAxis = new THREE.Vector3(0, 1, 0);
+                    let qInitial = new THREE.Quaternion().setFromAxisAngle(yAxis, 0); // 초기 회전 상태(0도 회전)를 정의합니다.
+                    let qFinal = new THREE.Quaternion().setFromAxisAngle(yAxis, Math.PI); // 목표 회전 상태(180도 회전)를 정의합니다(Math.PI는 라디안 값).
+
+                    let turnbackKF = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 1, 5, 5.1], [qInitial.x, qInitial.y, qInitial.z, qInitial.w, qFinal.x, qFinal.y, qFinal.z, qFinal.w, qFinal.x, qFinal.y, qFinal.z, qFinal.w, qInitial.x, qInitial.y, qInitial.z, qInitial.w]); // 키프레임 애니메이션 트랙을 생성합니다:  
+                    //[x, y, z, w]: 키프레임마다 모델의 회전 상태를 정의하며, 모델이 회전 애니메이션을 완성합니다.
+                    let clip = new THREE.AnimationClip('Action', 7, [turnbackKF]); // 'Action'이라는 이름의 애니메이션 클립을 생성합니다:
+                    gltf.animations = clip; // clip을 모델에 연결
+                    mixer = new THREE.AnimationMixer(gltf.scene); // 애니메이션 믹서를 생성하여 애니메이션을 관리하고 재생합니다. gltf.scene에 바인딩됩니다.
+
+                    const clipAction = mixer.clipAction(gltf.animations);
+                    clipAction.play();
+                }
+            );
+            var clock = new THREE.Clock(); //Three.js에서 Clock 객체를 생성하여 시간 차이를 계산합니다.
+
+            renderScene();
+
+            function renderScene() {
+                const delta = clock.getDelta(); // delta는 애니메이션이 고정된 속도가 아니라 실제 시간에 따라 변화하도록 합니다.
+                
+                if (mixer) {
+                    mixer.update(delta); // mixer((애니메이션 믹서)) 존재하는 지 확인 존재한다면, delta를 기반으로 애니메이션 상태를 업데이트합니다
+                }
+
+                if (controls1p.isLocked === true) {
+                    raycaster.ray.origin.copy(controls1p.getObject().position);
+                    raycaster.ray.origin.y -= 10;
+
+                    const intersections = raycaster.intersectObjects([plane], false);
+                    const onObject = intersections.length > 0;
+
+                    velocity.x -= velocity.x * 10.0 * delta;
+                    velocity.z -= velocity.z * 10.0 * delta;
+                    velocity.y -= 9.8 * 100.0 * delta;
+
+                    direction.z = Number(moveForward) - Number(moveBackward);
+                    direction.x = Number(moveRight) - Number(moveLeft);
+                    direction.normalize();
+
+                    if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+                    if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+                    if (onObject === true) {
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
+                    }
+
+                    controls1p.moveRight(-velocity.x * delta);
+                    controls1p.moveForward(-velocity.z * delta);
+                    controls1p.getObject().position.y += (velocity.y * delta);
+
+                    if (controls1p.getObject().position.y < 5) {
+                        velocity.y = 0;
+                        controls1p.getObject().position.y = 5;
+                        canJump = true;
+                    }
+                }
+
+                requestAnimationFrame(renderScene); // 이 함수는 브라우저의 화면 새로 고침률에 따라 애니메이션을 효율적으로 실행합니다
+                                                    //(다음 프레임에서 renderScene 함수를 호출하도록 브라우저에 요청합니다)
+                renderer.render(scene, camera);
+            }
+
+            document.body.appendChild(renderer.domElement);
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>

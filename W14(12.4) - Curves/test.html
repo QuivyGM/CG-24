@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LineCurve3 예제</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <script>
+        // 씬(Scene) 생성
+        const scene = new THREE.Scene();
+
+        // 카메라(Camera) 생성
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 50; // 카메라 위치 설정
+
+        // 렌더러(Renderer) 생성
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight); // 렌더링 크기 설정
+        document.body.appendChild(renderer.domElement); // HTML에 렌더러 추가
+
+var point1 = [-10, 0, 0],
+    point2 = [-4, -1, 0],
+    point3 = [1, 4, -30],
+    point4 = [-10, 5, -30];
+
+
+var line = new THREE.LineCurve3(new THREE.Vector3(point1[0], point1[1], point1[2]),
+                                new THREE.Vector3(point4[0], point4[1], point4[2]));
+var points = line.getPoints(2);
+var geometry = new THREE.BufferGeometry().setFromPoints(points); // 기하학 데이터 생성
+
+var material = new THREE.LineBasicMaterial({ color: 0x00FFFF }); // 재질 정의
+var splineObject = new THREE.Line(geometry, material); // 선 객체 생성
+scene.add(splineObject);
+
+line = new THREE.LineCurve3(new THREE.Vector3(point2[0], point2[1], point2[2]),
+                            new THREE.Vector3(point3[0], point3[1], point3[2]));
+points = line.getPoints(2);
+geometry = new THREE.BufferGeometry().setFromPoints(points);
+splineObject = new THREE.Line(geometry, material);
+scene.add(splineObject);
+
+line = new THREE.LineCurve3(new THREE.Vector3(point3[0], point3[1], point3[2]),
+                            new THREE.Vector3(point4[0], point4[1], point4[2]));
+points = line.getPoints(2);
+geometry = new THREE.BufferGeometry().setFromPoints(points);
+splineObject = new THREE.Line(geometry, material);
+scene.add(splineObject);
+
+// 애니메이션 및 렌더링
+function animate() {
+            requestAnimationFrame(animate); // 다음 프레임 요청
+            renderer.render(scene, camera); // 씬과 카메라 렌더링
+        }
+        animate(); // 애니메이션 실행
+    </script>
+</body>
+
+</html>

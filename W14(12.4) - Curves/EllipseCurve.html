@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js EllipseCurve 예제</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <script>
+        // 씬(Scene) 생성
+        const scene = new THREE.Scene();
+
+        // 카메라(Camera) 생성
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 10; // 카메라 위치 설정
+
+        // 렌더러(Renderer) 생성
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight); // 렌더링 크기 설정
+        document.body.appendChild(renderer.domElement); // 렌더러를 HTML에 추가
+
+        // EllipseCurve 생성
+        const curve = new THREE.EllipseCurve(
+            0, 0,               // 타원의 중심 좌표(x, y)
+            4, 2,               // 가로축 반지름, 세로축 반지름
+            0, 2 * Math.PI,     // 0부터 2π까지 타원 전체를 그림
+            false,              // 시계 방향으로 그림
+            0                   // 회전하지 않음
+        );
+
+        // 곡선 위의 점 생성
+        const points = curve.getPoints(200); // 200개의 점 생성
+        const geometry = new THREE.BufferGeometry().setFromPoints(points); // 점으로부터 기하학 데이터 생성
+
+        // 재질(Material) 생성
+        const material = new THREE.LineBasicMaterial({ color: 0xFFFF00 }); // 선의 색상 (노란색)
+
+        // 곡선 객체(Line) 생성
+        const curveObject = new THREE.Line(geometry, material); // 기하학과 재질을 결합
+        scene.add(curveObject); // 씬에 곡선 추가
+
+        // 애니메이션 및 렌더링
+        function animate() {
+            requestAnimationFrame(animate); // 다음 프레임 요청
+            renderer.render(scene, camera); // 씬과 카메라 렌더링
+        }
+        animate(); // 애니메이션 실행
+
+        // 윈도우 리사이즈 핸들러
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>

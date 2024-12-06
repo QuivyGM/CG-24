@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LineCurve3 예제</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <script>
+        // 씬(Scene) 생성
+        const scene = new THREE.Scene();
+
+        // 카메라(Camera) 생성
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 50; // 카메라 위치 설정
+
+        // 렌더러(Renderer) 생성
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight); // 렌더링 크기 설정
+        document.body.appendChild(renderer.domElement); // HTML에 렌더러 추가
+
+        // 점(Point) 정의
+        const point1 = [-10, 0, 0];
+        const point2 = [-4, -1, 0];
+        const point3 = [1, 4, -30];
+        const point4 = [-10, 5, -30];
+
+        // 재질(Material) 생성
+        const material = new THREE.LineBasicMaterial({ color: 0x00FFFF }); // 선의 색상 설정 (청록색)
+
+        // 선 생성 함수
+        function createLine(start, end) {
+            const line = new THREE.LineCurve3(
+                new THREE.Vector3(...start),
+                new THREE.Vector3(...end)
+            );
+            const points = line.getPoints(50); // 점을 50개로 세분화
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            return new THREE.Line(geometry, material);
+        }
+
+        // 선 객체 생성 및 씬에 추가
+        scene.add(createLine(point1, point4)); // point1 -> point4
+        scene.add(createLine(point1, point2)); // point1 -> point2
+        scene.add(createLine(point2, point3)); // point2 -> point3
+        scene.add(createLine(point3, point4)); // point3 -> point4
+
+        // 애니메이션 및 렌더링
+        function animate() {
+            requestAnimationFrame(animate); // 다음 프레임 요청
+            renderer.render(scene, camera); // 씬과 카메라 렌더링
+        }
+        animate(); // 애니메이션 실행
+    </script>
+</body>
+
+</html>

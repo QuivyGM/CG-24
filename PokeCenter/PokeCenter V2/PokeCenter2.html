@@ -10,6 +10,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/lights/RectAreaLightUniformsLib.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
     <style>
         body {
             margin: 0;
@@ -29,17 +31,26 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         
         // default view
-        // camera.position.set(0, 9, 11);
-        // camera.lookAt(0, 8, 10);
+        camera.position.set(0, 11, 11);
+        //camera.lookAt(0, 8, 10);
 
         // Pokecenter view
         // camera.position.set(20, 10, -15);
         // camera.lookAt(20, 5, -25);
 
         // river view
-        camera.position.set(0, 20, 80);
-        camera.lookAt(0, 3, 0);
+        // camera.position.set(0, 20, 80);
+        // camera.lookAt(0, 3, 0);
 
+
+
+
+
+
+
+
+
+        
         /*--------------------------------------- camera movement ---------------------------------------*/
         // use PointerLockControls for  better movement ( 더 자유럽고 자연스러운 카메라 움직임 )
         const controls = new THREE.PointerLockControls(camera, document.body); // set controls as PointerLockControls ( 카메라 컨트롤러 활성화 )
@@ -74,6 +85,15 @@
             }
         });
         
+
+
+
+
+
+
+
+
+
         /*----------------------------------------- create scene ----------------------------------------*/
 
         // basic setup
@@ -98,6 +118,15 @@
             plane.rotation.x = -Math.PI / 2; // Rotate the plane to be horizontal
             scene.add(plane);
         }
+
+
+
+
+
+
+
+
+
 
         /*------------------- light setting -------------------*/
 
@@ -125,91 +154,13 @@
         pointLight3.position.set(10, 19, -20);
         pointLight4.position.set(10, 19, -10);
 
-        /*--------------------- add GUI ---------------------*/
-        // GUI setup
-        // GUI setup
-const gui = new dat.GUI();
-const lightFolder = gui.addFolder('Light Settings');
-const lightParams = {
-    isDay: true
-};
-
-// Function to gradually change light intensity
-function gradualChangeLightIntensity(light, targetIntensity) {
-    const step = 0.02; // Step for intensity change
-    const interval = 20; // Milliseconds between steps
-    const currentIntensity = light.intensity;
-
-    const change = targetIntensity > currentIntensity ? step : -step;
-
-    const intervalId = setInterval(() => {
-        light.intensity += change;
-
-        // Stop the interval when the target is reached
-        if ((change > 0 && light.intensity >= targetIntensity) ||
-            (change < 0 && light.intensity <= targetIntensity)) {
-            light.intensity = targetIntensity; // Ensure exact value
-            clearInterval(intervalId);
-        }
-    }, interval);
-}
-
-// GUI toggle for day/night
-lightFolder.add(lightParams, 'isDay').name('Toggle Day/Night').onChange(() => {
-    // Adjust hemisphereLight intensity
-    const hemisphereTarget = lightParams.isDay ? 1 : 0.1;
-    gradualChangeLightIntensity(hemisphereLight, hemisphereTarget);
-
-    // Adjust pointLight1, 2, 3, 4 intensity
-    const pointLightTarget = lightParams.isDay ? 0 : 0.2;
-    gradualChangeLightIntensity(pointLight1, pointLightTarget);
-    gradualChangeLightIntensity(pointLight2, pointLightTarget);
-    gradualChangeLightIntensity(pointLight3, pointLightTarget);
-    gradualChangeLightIntensity(pointLight4, pointLightTarget);
-});
-
-lightFolder.open();
 
 
 
-        //circling camera   
-        const cameraFolder = gui.addFolder('Drone Shot');
-        const cameraParams = {
-            animate: false
-        };
 
-        cameraFolder.add(cameraParams, 'animate').name('Toggle Camera Animation').onChange(() => {
-            if (cameraParams.animate) {
-            startCameraAnimation();
-            } else {
-            stopCameraAnimation();
-            }
-        });
 
-        cameraFolder.open();
 
-        let cameraAnimationId;
-        function startCameraAnimation() {
-            const radius = 80;
-            const speed = 0.005;
-            let angle = 0;
 
-            function animateCamera() {
-            angle += speed;
-            camera.position.x = radius * Math.cos(angle);
-            camera.position.z = radius * Math.sin(angle);
-            camera.position.y = 20;
-            camera.lookAt(0, 0, 0);
-            cameraAnimationId = requestAnimationFrame(animateCamera);
-            }
-
-            animateCamera();
-        }
-
-        function stopCameraAnimation() {
-            cancelAnimationFrame(cameraAnimationId);
-        }
-        
 
 
         /*------------------- texture function -------------------*/
@@ -282,7 +233,8 @@ lightFolder.open();
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
                 texture.repeat.set(5, 1); // Adjust the repeat values as needed
-            })
+            }),
+            side: THREE.DoubleSide
         });
         const riverDirt = new THREE.MeshPhongMaterial({
             map: loader.load('texture/dirt2.png', function (texture) {
@@ -362,6 +314,12 @@ lightFolder.open();
             side: THREE.DoubleSide
         });
 
+        const hudMaterial = new THREE.MeshBasicMaterial({
+            map: loader.load('texture/hud1.png'),
+            transparent: true, // Enable transparency
+            opacity: 1, // Adjust the opacity as needed
+            side: THREE.DoubleSide
+        });
 
         // Example: Dynamically set the texture repeat based on an object's size
         function applyTextureRepeat(material, geometry) {
@@ -374,6 +332,15 @@ lightFolder.open();
                 texture.repeat.set(size.x, size.y); // Adjust the repeat values
             }
         }
+
+
+
+
+
+
+
+
+
 
         /*------------------- Basic geometry functions -------------------*/
 
@@ -446,7 +413,7 @@ lightFolder.open();
         function createInfiniteSign(x, z) {
             const width = 80; // Width of the loops
             const height = 7; // Height of the loops
-            const twistFactor = 0.5; // Controls the twisting effect at the intersection
+            const twistFactor = 4; // Controls the twisting effect at the intersection
 
             // Left loop of the infinity sign
             const leftCurve = new THREE.CubicBezierCurve3(
@@ -734,6 +701,22 @@ lightFolder.open();
             return dronePlane;
         }
 
+        function createHud(x, y, z) {
+            const hudPlane = new THREE.Mesh(new THREE.PlaneGeometry(1024, 578), hudMaterial);
+            hudPlane.position.set(x, y, z);
+            hudPlane.scale.set(0.003, 0.003, 0.003);
+            return hudPlane;
+        }
+
+
+
+
+
+
+
+
+
+
         /*------------------ building functions ------------------*/
 
         scene.add(createBox(30, 19, -10, whiteTile, 1, 1, 1));
@@ -873,8 +856,7 @@ lightFolder.open();
                     door.add(createCylinder(0, 14, 12, blackMetal, 5.7, 5.7, 1, false, 1).rotateY(Math.PI / -2).rotateZ(Math.PI / 2));
                     
 
-                    door.add(createCylinder(0, 0, 12.5, window_blue, 5.25, 5.25, 14, true, 0.25).rotateY(Math.PI / -4));
-                    door.add(createCylinder(0, 0, 12.5, window_blue, 5.25, 5.25, 14, true, 0.25).rotateY(0));
+                    
 
                     return door;
                 }
@@ -1152,6 +1134,15 @@ lightFolder.open();
             return magikarpPivot;
         }
 
+
+
+
+
+
+
+
+
+
         /*-------------------- scene building --------------------*/
         // ref: https://pokegalerie.com/products/in-stock-1-20-scale-world-figure-poke-house-poke-center-nurse-joy-chansey
         PokeCenter = PokeCenter();
@@ -1200,6 +1191,17 @@ lightFolder.open();
         scene.add(pokeball5);
         scene.add(pokeball6);
 
+
+
+
+
+
+
+
+
+
+        /*-------------------- animation setup --------------------*/
+        // path for Lakitu
         const path = createInfiniteSign(0, 50);
         scene.add(path);
         
@@ -1208,8 +1210,351 @@ lightFolder.open();
         const pathLength = pathPoints.length / 3;
         let pathIndex = 0;
 
-        // At the top with other variables
         let pathProgress = 0;
+
+        // add automatic doors
+        const hud = createHud(0, 0, -2);
+        hud.position.set(0, -0.6, -2); 
+        hud.renderOrder = 999; 
+        hud.material.depthTest = false;
+
+        camera.add(hud);
+        scene.add(camera);
+
+        // automatic doors
+        // 5.25, 5.25, 14, 
+        // 20, 0, -15
+        // 25.25, 5.25, -1
+        //scene.add(createBox(20, 5.25, -1, wall_white, 5, 5, 5));
+        const leftdoor = createCylinder(20, 0, -2.5, window_blue, 5.25, 5.25, 14, true, 0.25).rotateY(Math.PI / -4);
+        scene.add(leftdoor);
+        const rightdoor = createCylinder(20, 0, -2.5, window_blue, 5.25, 5.25, 14, true, 0.25).rotateY(0);
+        scene.add(rightdoor);
+
+        const doorPosition = new THREE.Vector3(20, 5.25, -1);
+        const doorTrigger = 10;
+
+        let doorOpened = false;
+
+        function openDoors() {
+            if (!doorOpened) {
+                doorOpened = true;
+                gsap.to(leftdoor.rotation, { y: Math.PI / -2, duration: 1 }); // Left door opens to +30 degrees
+                gsap.to(rightdoor.rotation, { y: -Math.PI / -4, duration: 1 }); // Right door opens to -30 degrees
+            }
+        }
+
+        function closeDoors() {
+            if (doorOpened) {
+                doorOpened = false;
+                gsap.to(leftdoor.rotation, { y: Math.PI / -4, duration: 1 }); // Reset left door rotation
+                gsap.to(rightdoor.rotation, { y: 0, duration: 1 }); // Reset right door rotation
+            }
+        }
+
+        // door hitbox
+        // const debugSphere = new THREE.Mesh(
+        //     new THREE.SphereGeometry(10, 16, 16),
+        //     new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+        // );
+        // debugSphere.position.copy(doorPosition);
+        // scene.add(debugSphere);
+
+        
+
+
+
+
+
+
+
+
+        /*------------------- object collision -------------------*/
+        // Array to store manually defined collidable objects
+        const collidableObjects = [];
+
+        // Function to add an object to the collision system
+        function addCollidableObject(object) {
+            object.geometry.computeBoundingBox(); // Ensure bounding box is computed
+            object.boundingBox = new THREE.Box3().setFromObject(object); // Create bounding box
+            collidableObjects.push(object); // Add to the collidable objects array
+        }
+
+        function createWireframeBox(x, y, z, width, height, depth, color = 0xff0000) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            //const material = new THREE.MeshBasicMaterial({ color: color, wireframe: true, visible: false });
+            const material = new THREE.MeshBasicMaterial({ color: color, visible: false });
+            const wireframeBox = new THREE.Mesh(geometry, material);
+            wireframeBox.position.set(x, y, z);
+            return wireframeBox;
+        }
+        
+
+        
+        // ground & trees hitbox
+        addCollidableObject(createWireframeBox(0, 0, 0, 100, 0.1, 80));
+        addCollidableObject(createWireframeBox(0, -2, 50, 100, 0.1, 22));
+        addCollidableObject(createWireframeBox(-25, 10, -20, 30, 30, 30));
+        // lamp hitbox
+        addCollidableObject(createWireframeBox(-40, 9, 5, 1, 18, 1));
+        addCollidableObject(createWireframeBox(0, 9, 5, 1, 18, 1));
+        addCollidableObject(createWireframeBox(+40, 9, 5, 1, 18, 1));
+        addCollidableObject(createWireframeBox(-40, 9, 25, 1, 18, 1));
+        addCollidableObject(createWireframeBox(0, 9, 25, 1, 18, 1));
+        addCollidableObject(createWireframeBox(+40, 9, 25, 1, 18, 1));
+        //pokecenter hitbox
+        addCollidableObject(createWireframeBox(20, 11, -27.5, 37, 22, 1));
+
+        addCollidableObject(createWireframeBox(40, 11, -15, 1, 22, 24));
+        addCollidableObject(createWireframeBox(0, 11, -15, 1, 22, 24));
+        addCollidableObject(createWireframeBox(32, 11, -2.5, 15, 22, 1));
+        addCollidableObject(createWireframeBox(8, 11, -2.5, 15, 22, 1));
+        addCollidableObject(createWireframeBox(20, 17.5, 0, 10, 8, 5));
+
+        addCollidableObject(createWireframeBox(20, 23, -15, 36+5, 1, 21+5));
+        addCollidableObject(createWireframeBox(20, 27, -15, 10, 5, 15));
+
+        
+
+
+        // Create a bounding box for the camera
+        const cameraBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+
+        // Function to check for collisions
+        function checkBoundingBoxCollision() {
+            // Update camera bounding box dynamically
+            const boxSize = 1; // Adjust size for the camera
+            cameraBox.setFromCenterAndSize(new THREE.Vector3(camera.position.x, camera.position.y - 4, camera.position.z), new THREE.Vector3(boxSize, 8, boxSize));
+
+            // Check for intersections with manually added collidable objects
+            for (const obj of collidableObjects) {
+                obj.boundingBox.setFromObject(obj); // Update bounding box for transformations
+                if (cameraBox.intersectsBox(obj.boundingBox)) {
+                    return true; // Collision detected
+                }
+            }
+            return false; // No collision
+        }
+
+        /*--------------------- add GUI ---------------------*/
+        // GUI setup
+        // GUI setup
+        const gui = new dat.GUI();
+        const lightFolder = gui.addFolder('Light Settings');
+        const lightParams = {
+            isDay: true
+        };
+
+        // Function to gradually change light intensity
+        function gradualChangeLightIntensity(light, targetIntensity) {
+            const step = 0.02; // Step for intensity change
+            const interval = 20; // Milliseconds between steps
+            const currentIntensity = light.intensity;
+
+            const change = targetIntensity > currentIntensity ? step : -step;
+
+            const intervalId = setInterval(() => {
+                light.intensity += change;
+
+                // Stop the interval when the target is reached
+                if ((change > 0 && light.intensity >= targetIntensity) ||
+                    (change < 0 && light.intensity <= targetIntensity)) {
+                    light.intensity = targetIntensity; // Ensure exact value
+                    clearInterval(intervalId);
+                }
+            }, interval);
+        }
+
+        // GUI toggle for day/night
+        lightFolder.add(lightParams, 'isDay').name('Toggle Day/Night').onChange(() => {
+            // Adjust hemisphereLight intensity
+            const hemisphereTarget = lightParams.isDay ? 1 : 0.1;
+            gradualChangeLightIntensity(hemisphereLight, hemisphereTarget);
+
+            // Adjust pointLight1, 2, 3, 4 intensity
+            const pointLightTarget = lightParams.isDay ? 0 : 0.2;
+            gradualChangeLightIntensity(pointLight1, pointLightTarget);
+            gradualChangeLightIntensity(pointLight2, pointLightTarget);
+            gradualChangeLightIntensity(pointLight3, pointLightTarget);
+            gradualChangeLightIntensity(pointLight4, pointLightTarget);
+        });
+
+        lightFolder.open();
+
+        // camera movement
+        const cameraFolder = gui.addFolder('Camera');
+        const cameraParams = {
+            animate: false
+        };
+
+        cameraFolder.add(cameraParams, 'animate').name('Toggle Camera Animation').onChange(() => {
+            if (cameraParams.animate) {
+            startCameraAnimation();
+            } else {
+            stopCameraAnimation();
+            }
+        });
+
+        cameraFolder.open();
+
+        let cameraAnimationId;
+        function startCameraAnimation() {
+            const radius = 80;
+            const speed = 0.005;
+            let angle = 0;
+
+            function animateCamera() {
+            angle += speed;
+            camera.position.x = radius * Math.cos(angle);
+            camera.position.z = radius * Math.sin(angle);
+            camera.position.y = 20;
+            camera.lookAt(0, 0, 0);
+            cameraAnimationId = requestAnimationFrame(animateCamera);
+            }
+
+            animateCamera();
+        }
+
+        function stopCameraAnimation() {
+            cancelAnimationFrame(cameraAnimationId);
+        }
+
+        // Movement GUI
+        const movementParams = {
+            flying: true, // Default to flying movement
+            jumpVelocity: 0,
+            onGround: true
+        };
+
+        cameraFolder.add(movementParams, 'flying').name('Flying Mode').onChange((value) => {
+            if (value) movementParams.jumpVelocity = 0; // Reset jump velocity
+        });
+
+        // Constants for movement and physics
+        // Constants for movement and physics
+        const GRAVITY = -0.02; // Gravity constant
+        const JUMP_STRENGTH = 0.5;
+        const HOVER_HEIGHT = 1.0; // Hover height above ground
+
+        function handleMovement() {
+            const initialPosition = camera.position.clone(); // Save the current position
+
+            if (movementParams.flying) {
+                // Flying movement
+                if (move.forward) controls.moveForward(speed);
+                if (move.backward) controls.moveForward(-speed);
+                if (move.left) controls.moveRight(-speed);
+                if (move.right) controls.moveRight(speed);
+                if (move.up) camera.position.y += verticalSpeed;
+                if (move.down) camera.position.y -= verticalSpeed;
+            } else {
+                // Gravity-based movement
+                const direction = new THREE.Vector3();
+                camera.getWorldDirection(direction);
+                direction.y = 0; // Ignore vertical component
+                direction.normalize();
+
+                const right = new THREE.Vector3();
+                right.crossVectors(direction, camera.up).normalize();
+
+                // Horizontal movement
+                if (move.forward) camera.position.addScaledVector(direction, speed);
+                if (move.backward) camera.position.addScaledVector(direction, -speed);
+                if (move.left) camera.position.addScaledVector(right, -speed);
+                if (move.right) camera.position.addScaledVector(right, speed);
+
+                // Jumping logic
+                if (movementParams.onGround && move.up) {
+                    movementParams.jumpVelocity = JUMP_STRENGTH; // Initiate jump
+                    movementParams.onGround = false; // Airborne
+                }
+
+                // Apply gravity
+                camera.position.y += movementParams.jumpVelocity;
+                movementParams.jumpVelocity += GRAVITY;
+
+                // Simulate ground collision using bounding boxes
+                const cameraBox = new THREE.Box3().setFromCenterAndSize(
+                    new THREE.Vector3(camera.position.x, camera.position.y - 4, camera.position.z),
+                    new THREE.Vector3(1, 8, 1) // Adjust dimensions as needed
+                );
+
+                let isOnGround = false;
+
+                for (const obj of collidableObjects) {
+                    obj.boundingBox.setFromObject(obj); // Update bounding box for transformations
+                    if (cameraBox.intersectsBox(obj.boundingBox)) {
+                        const objBottomY = obj.boundingBox.max.y; // Top of the ground object
+                        const cameraBottomY = cameraBox.min.y; // Bottom of the camera box
+
+                        if (cameraBottomY <= objBottomY + HOVER_HEIGHT) {
+                            // Snap the camera to hover above the ground object
+                            camera.position.y = objBottomY + HOVER_HEIGHT;
+                            movementParams.jumpVelocity = 0; // Stop falling
+                            isOnGround = true;
+                        }
+                    }
+                }
+
+                movementParams.onGround = isOnGround;
+
+                if (!isOnGround) {
+                    movementParams.onGround = false; // Airborne
+                }
+            }
+
+            // Collision detection
+            if (checkBoundingBoxCollision()) {
+                camera.position.copy(initialPosition); // Revert to previous position
+                movementParams.jumpVelocity = 0; // Stop vertical movement on collision
+            }
+        }
+
+        // Collision detection function remains the same
+        function checkBoundingBoxCollision() {
+            const cameraBox = new THREE.Box3().setFromCenterAndSize(
+                new THREE.Vector3(camera.position.x, camera.position.y - 4, camera.position.z),
+                new THREE.Vector3(1, 8, 1) // Adjust dimensions as needed
+            );
+
+            for (const obj of collidableObjects) {
+                obj.boundingBox.setFromObject(obj); // Update bounding box for transformations
+                if (cameraBox.intersectsBox(obj.boundingBox)) {
+                    return true; // Collision detected
+                }
+            }
+            return false; // No collision
+        }
+
+        // Collision detection GUI
+        function createBoundingBoxHelper(object) {
+            const box = new THREE.BoxHelper(object, 0xff0000); // Red for debugging
+            scene.add(box);
+            return box;
+        }
+        const debugFolder = gui.addFolder('Collision');
+        const debugParams = {
+            showBoundingBoxes: false
+        };
+
+        debugFolder.add(debugParams, 'showBoundingBoxes').name('Show Hitboxes').onChange(() => {
+            collidableObjects.forEach((obj) => {
+            if (debugParams.showBoundingBoxes) {
+                obj.helper = createBoundingBoxHelper(obj);
+            } else {
+                scene.remove(obj.helper);
+            }
+            });
+        });
+
+        debugFolder.open();
+
+
+
+
+
+
+
 
         /*--------------------- render setup ---------------------*/
         // Renderer setup
@@ -1284,16 +1629,25 @@ lightFolder.open();
             pokeball5.rotation.y += 0.02;
             pokeball6.rotation.y += 0.02;
 
+            // Trigger open/close animations based on proximity
+            const distance = camera.position.distanceTo(doorPosition);
             
+            if (distance < doorTrigger) {
+                openDoors();
+            } else {
+                closeDoors();
+            }
 
+            // Handle movement and check collisions
+            handleMovement();
 
             // Movement directions
-            if (move.forward) controls.moveForward(speed);
-            if (move.backward) controls.moveForward(-speed);
-            if (move.left) controls.moveRight(-speed);
-            if (move.right) controls.moveRight(speed);
-            if (move.up) camera.position.y += verticalSpeed; // Move up
-            if (move.down) camera.position.y -= verticalSpeed; // Move down
+            // if (move.forward) controls.moveForward(speed);
+            // if (move.backward) controls.moveForward(-speed);
+            // if (move.left) controls.moveRight(-speed);
+            // if (move.right) controls.moveRight(speed);
+            // if (move.up) camera.position.y += verticalSpeed; // Move up
+            // if (move.down) camera.position.y -= verticalSpeed; // Move down
 
             renderer.render(scene, camera);
         }

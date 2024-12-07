@@ -111,11 +111,11 @@
             const planeTexture = loader.load('texture/grass.png', function (texture) {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(10, 10); // Adjust the repeat values as needed
+                texture.repeat.set(10, 10);
             });
             const planeMaterial = new THREE.MeshPhongMaterial({ map: planeTexture, side: THREE.DoubleSide });
             const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-            plane.rotation.x = -Math.PI / 2; // Rotate the plane to be horizontal
+            plane.rotation.x = -Math.PI / 2;
             scene.add(plane);
         }
 
@@ -131,15 +131,15 @@
         /*------------------- light setting -------------------*/
 
         // Ambient light
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
 
         // Hemisphere light
-        const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1); // sky color, ground color, intensity
+        const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
         scene.add(hemisphereLight);
 
         // pointlight
-        const pointLight1 = new THREE.PointLight(0xffffff, 0, 100); // color, intensity, distance
+        const pointLight1 = new THREE.PointLight(0xffffff, 0, 100);
         const pointLight2 = new THREE.PointLight(0xffffff, 0, 100);
         const pointLight3 = new THREE.PointLight(0xffffff, 0, 100);
         const pointLight4 = new THREE.PointLight(0xffffff, 0, 100);
@@ -179,7 +179,7 @@
         const lightMat = new THREE.MeshBasicMaterial({ color: "#FFDF99", transparent: true, opacity: 0.5, side: THREE.DoubleSide });
         const window_blue = new THREE.MeshPhongMaterial({ color: '#91c4c5', transparent: true, opacity: 0.5, side: THREE.DoubleSide });
         const seatBlue = new THREE.MeshBasicMaterial({ color: '#19c8d9' });
-        const seatMustard = new THREE.MeshBasicMaterial({ color: '#FFCC49' }); //#FFCC49
+        const seatMustard = new THREE.MeshBasicMaterial({ color: '#FFCC49' });
         const healingGreen = new THREE.MeshPhongMaterial({ color: '#008000' });
 
         // textures
@@ -187,14 +187,13 @@
             map: loader.load('texture/centerFloor.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(6, 4); // Adjust the repeat values as needed
+            texture.repeat.set(6, 4);
             })
         });
         const whiteTile = new THREE.MeshPhongMaterial({
             map: loader.load('texture/whiteTile.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            // Adjust repeat values based on the object's dimensions
             texture.needsUpdate = true;
             }),
             side: THREE.DoubleSide
@@ -203,14 +202,14 @@
             map: loader.load('texture/dirt.png', function (texture) {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(10, 1); // Adjust the repeat values as needed
+                texture.repeat.set(10, 1);
             })
         });
         const centerLogo = new THREE.MeshPhongMaterial({
             map: loader.load('texture/centerLogo2.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            texture.repeat.set(1, 1);
             }),
             side: THREE.DoubleSide
         });
@@ -218,21 +217,21 @@
             map: loader.load('texture/bark.png', function (texture) {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(1, 1); // Adjust the repeat values as needed
+                texture.repeat.set(1, 1);
             })
         });
         const leafMat = new THREE.MeshPhongMaterial({
             map: loader.load('texture/leaf2.png', function (texture) {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(3, 3); // Adjust the repeat values as needed
+                texture.repeat.set(3, 3);
             })
         });
         const water = new THREE.MeshPhongMaterial({
             map: loader.load('texture/water.png', function (texture) {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(5, 1); // Adjust the repeat values as needed
+                texture.repeat.set(5, 1);
             }),
             side: THREE.DoubleSide
         });
@@ -240,7 +239,7 @@
             map: loader.load('texture/dirt2.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(10, 1); // Adjust the repeat values as needed
+            texture.repeat.set(10, 1);
             }),
             side: THREE.DoubleSide
         });
@@ -248,14 +247,14 @@
             map: loader.load('texture/bush2.png', function (texture) {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(1, 1); // Adjust the repeat values as needed
+                texture.repeat.set(1, 1);
             })
         });
         const stone = new THREE.MeshPhongMaterial({
             map: loader.load('texture/stone.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            texture.repeat.set(1, 1);
             }),
             side: THREE.DoubleSide
         });
@@ -263,7 +262,7 @@
             map: loader.load('texture/poster.png', function (texture) {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(1, 1); // Adjust the repeat values as needed
+                texture.repeat.set(1, 1);
             }),
             side: THREE.DoubleSide
         });
@@ -271,65 +270,64 @@
             map: loader.load('texture/nurse.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            texture.repeat.set(1, 1);
             }),
-            transparent: true, // Enable transparency
-            opacity: 1, // Adjust the opacity as needed
+            transparent: true,
+            opacity: 1,
             side: THREE.DoubleSide
         });
         const chansey = new THREE.MeshBasicMaterial({
             map: loader.load('texture/chansey.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            texture.repeat.set(1, 1);
             }),
-            transparent: true, // Enable transparency
-            opacity: 1, // Adjust the opacity as needed
+            transparent: true,
+            opacity: 1,
             side: THREE.DoubleSide
         });
         const poke_screen = new THREE.MeshPhongMaterial({
             map: loader.load('texture/poke_screen.png', function (texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1); // Adjust the repeat values as needed
+            texture.repeat.set(1, 1);
             }),
             side: THREE.DoubleSide
         });
         const magikarpMaterial = new THREE.MeshPhongMaterial({
             map: loader.load('texture/magikarp.png'),
-            transparent: true, // Enable transparency
-            opacity: 1, // Adjust the opacity as needed
+            transparent: true,
+            opacity: 1,
             side: THREE.DoubleSide
         });
         const lakituMaterial = new THREE.MeshPhongMaterial({
             map: loader.load('texture/lakitu.png'),
-            transparent: true, // Enable transparency
-            opacity: 1, // Adjust the opacity as needed
+            transparent: true,
+            opacity: 1,
             side: THREE.DoubleSide
         });
         const droneMaterial = new THREE.MeshPhongMaterial({
             map: loader.load('texture/drone.png'),
-            transparent: true, // Enable transparency
-            opacity: 1, // Adjust the opacity as needed
+            transparent: true,
+            opacity: 1,
             side: THREE.DoubleSide
         });
-
         const hudMaterial = new THREE.MeshBasicMaterial({
             map: loader.load('texture/hud1.png'),
-            transparent: true, // Enable transparency
-            opacity: 1, // Adjust the opacity as needed
+            transparent: true,
+            opacity: 1,
             side: THREE.DoubleSide
         });
 
-        // Example: Dynamically set the texture repeat based on an object's size
+        // Dynamic texture repeat
         function applyTextureRepeat(material, geometry) {
             const size = new THREE.Vector3();
-            geometry.computeBoundingBox(); // Ensure geometry has a bounding box
-            geometry.boundingBox.getSize(size); // Get the size of the bounding box
+            geometry.computeBoundingBox();
+            geometry.boundingBox.getSize(size);
 
             const texture = material.map;
             if (texture) {
-                texture.repeat.set(size.x, size.y); // Adjust the repeat values
+                texture.repeat.set(size.x, size.y);
             }
         }
 
@@ -345,13 +343,12 @@
         /*------------------- Basic geometry functions -------------------*/
 
         function createBox(x, y, z, material, w, h, d, rotationX = 0, rotationY = 0, rotationZ = 0) {
-                const geometry = new THREE.BoxGeometry(w, h, d);
-                //applyTextureRepeat(material, geometry);
-                const box = new THREE.Mesh(geometry, material);
-                box.position.set(x, h/2+y, z);
-                box.rotation.set(rotationX, rotationY, rotationZ);
-                return box;
-            }
+            const geometry = new THREE.BoxGeometry(w, h, d);
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(x, h/2+y, z);
+            box.rotation.set(rotationX, rotationY, rotationZ);
+            return box;
+        }
         function createSphere(x, y, z, material, radius) {
             const geometry = new THREE.SphereGeometry(radius, 32, 32);
             const sphere = new THREE.Mesh(geometry, material);
@@ -359,11 +356,11 @@
             return sphere;
         }
         function createHalfSphere(x, y, z, material, radius) {
-                    const geometry = new THREE.SphereGeometry(radius, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
-                    const halfSphere = new THREE.Mesh(geometry, material);
-                    halfSphere.position.set(x, y, z);
-                    return halfSphere;
-                }
+            const geometry = new THREE.SphereGeometry(radius, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+            const halfSphere = new THREE.Mesh(geometry, material);
+            halfSphere.position.set(x, y, z);
+            return halfSphere;
+        }
         function createCylinder(x, y, z, material, radius1 = 1, radius2 = 1, height = 1, openEnded = false, thetaLength = 2) {
             const geometry = new THREE.CylinderGeometry(radius1, radius2, height, 32, 1, openEnded, 0, thetaLength * Math.PI);
             const cylinder = new THREE.Mesh(geometry, material);
@@ -409,62 +406,71 @@
             ring.position.set(x, y, z);
             return ring;
         }
-        
+
         function createInfiniteSign(x, z) {
-            const width = 80; // Width of the loops
-            const height = 7; // Height of the loops
-            const twistFactor = 4; // Controls the twisting effect at the intersection
+            const width = 80; 
+            const height = 7; 
+            const twistFactor = 4; 
 
-            // Left loop of the infinity sign
+            // Left loop
             const leftCurve = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(-width / 2, 0, 0),         // Start point (leftmost point)
-            new THREE.Vector3(-width / 2, height, 0),   // Control point 1 (top of left loop)
-            new THREE.Vector3(0, height, 0),            // Control point 2 (moving towards the center)
-            new THREE.Vector3(0, 0, twistFactor)        // End point (center, twisted in z-axis)
+                new THREE.Vector3(-width / 2, 0, 0),
+                new THREE.Vector3(-width / 2, height, 0),
+                new THREE.Vector3(0, height, 0),
+                new THREE.Vector3(0, 0, twistFactor)
             );
 
-            // Right loop of the infinity sign
+            // Right loop
             const rightCurve = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(0, 0, twistFactor),       // Start point (center, twisted in z-axis)
-            new THREE.Vector3(0, -height, 0),          // Control point 1 (bottom of right loop)
-            new THREE.Vector3(width / 2, -height, 0),  // Control point 2 (moving towards the bottom right)
-            new THREE.Vector3(width / 2, 0, 0)         // End point (rightmost point)
+                new THREE.Vector3(0, 0, twistFactor),
+                new THREE.Vector3(0, -height, 0),
+                new THREE.Vector3(width / 2, -height, 0),
+                new THREE.Vector3(width / 2, 0, 0)
             );
 
-            // Smooth connection back to the left loop
+            // connection to left loop
             const connectBackCurve = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(width / 2, 0, 0),         // Start point (end of right loop)
-            new THREE.Vector3(width / 2, height, 0),   // Control point 1 (top of right loop)
-            new THREE.Vector3(0, height, 0),           // Control point 2 (moving towards the center)
-            new THREE.Vector3(0, 0, -twistFactor)      // End point (center, twisted in z-axis)
+                new THREE.Vector3(width / 2, 0, 0),
+                new THREE.Vector3(width / 2, height, 0),
+                new THREE.Vector3(0, height, 0),
+                new THREE.Vector3(0, 0, -twistFactor)
             );
 
-            // Smooth connection to close the left loop
+            // connection to close left loop
             const connectLeftCurve = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(0, 0, -twistFactor),     // Start point (center, twisted in z-axis)
-            new THREE.Vector3(0, -height, 0),         // Control point 1 (bottom of left loop)
-            new THREE.Vector3(-width / 2, -height, 0),// Control point 2 (moving towards the bottom left)
-            new THREE.Vector3(-width / 2, 0, 0)       // End point (leftmost point)
+                new THREE.Vector3(0, 0, -twistFactor),
+                new THREE.Vector3(0, -height, 0),
+                new THREE.Vector3(-width / 2, -height, 0),
+                new THREE.Vector3(-width / 2, 0, 0)
             );
 
             // Combine all points
             const points = [
-            ...leftCurve.getPoints(50),
-            ...rightCurve.getPoints(50),
-            ...connectBackCurve.getPoints(50),
-            ...connectLeftCurve.getPoints(50)
+                ...leftCurve.getPoints(50),
+                ...rightCurve.getPoints(50),
+                ...connectBackCurve.getPoints(50),
+                ...connectLeftCurve.getPoints(50)
             ];
 
             // Create geometry and material
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
             const material = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.1 });
 
-            // Create the line
+            // Create line
             const line = new THREE.Line(geometry, material);
             line.position.set(x, 15, z);
-            line.rotateX(Math.PI / 2); // Rotate the line to be horizontal
+            line.rotateX(Math.PI / 2); 
             return line;
         }
+
+
+
+
+
+
+
+
+
 
         /*------------------- Create functions -------------------*/
 
@@ -605,7 +611,7 @@
                             '#0000ff', '#ff0000', '#006400', '#0000ff', '#006400', '#ff0000', '#ffff00', '#0000ff', '#ff0000', '#006400'];
 
             for (let i = 0; i < N; i++) {
-                const color = colors[i % colors.length]; // Ensures a repeating pattern of the given color list.
+                const color = colors[i % colors.length];
                 const material = new THREE.MeshPhongMaterial({ color: color });
                 bookline.add(createBook(-1, 2.5, -1.8 + i * 0.2, material));
             }
@@ -641,14 +647,14 @@
         function magikarp(x, y, z) {
             const magikarpPlane = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), magikarpMaterial);
             magikarpPlane.position.set(x, y, z);
-            magikarpPlane.rotation.y = Math.PI; // Adjust rotation if needed
+            magikarpPlane.rotation.y = Math.PI;
             return magikarpPlane;
         }
 
         function lakitu(x, y, z) {
             const lakituPlane = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), lakituMaterial);
             lakituPlane.position.set(x, y, z);
-            lakituPlane.rotation.y = Math.PI; // Adjust rotation if needed
+            lakituPlane.rotation.y = Math.PI;
             lakituPlane.userData.direction=0.35;
             return lakituPlane;
         }
@@ -671,7 +677,6 @@
             const halfSphere2 = createHalfSphere(0, 0, 0, new THREE.MeshPhongMaterial({ color: 0xffffff }), 1);
             halfSphere2.rotation.x = Math.PI;
             const ring = createCylinder(0, 0, 0, new THREE.MeshPhongMaterial({ color: 0x000000 }), 1, 1, 0.1);
-            //ring.rotateX(Math.PI / 2);
 
             const button = createCylinder(0, -0.45, 0.5, new THREE.MeshPhongMaterial({ color: 0x000000 }), 0.25, 0.25, 1);
             button.rotateX(Math.PI / 2);
@@ -723,12 +728,6 @@
         scene.add(createBox(30, 19, -20, whiteTile, 1, 1, 1));
         scene.add(createBox(10, 19, -10, whiteTile, 1, 1, 1));
         scene.add(createBox(10, 19, -20, whiteTile, 1, 1, 1));
-
-        // pointLight1.position.set(30, 19, -10);
-        // pointLight1.position.set(30, 19, -20);
-        // pointLight1.position.set(10, 19, -20);
-        // pointLight1.position.set(10, 19, -10);
-        // pointLight1.position.set(20, 19, -15);
 
         function PokeCenter(){
             const centerH = 13;
@@ -887,9 +886,7 @@
                 centerRoof.add(createCylinder(-19.9, 1, -11.9, wall_white, 2, 2, 1));
                 centerRoof.add(createCylinder(-19.9, 1, 11.9, wall_white, 2, 2, 1));
                 
-                //second floor
-                
-
+                //second floor               
                 function createSecondFloor(){
                     const secondFloor = new THREE.Group();
                     
@@ -972,10 +969,9 @@
                     const logoGeometry = new THREE.PlaneGeometry(5, 5);
                     const logoPlane = new THREE.Mesh(logoGeometry, centerLogo);
                     logoPlane.position.set(0, 13.5, 8.55);
-                    logoPlane.rotation.y = Math.PI; // Rotate to face the correct direction
+                    logoPlane.rotation.y = Math.PI;
                     secondFloor.add(logoPlane);
                     
-
                     return secondFloor
                 }
 
@@ -1005,13 +1001,11 @@
                 interior.add(createCylinder(0, 4, -7, wall_red, 11, 11, 1, true, 1).rotateY(Math.PI / -2));
                 interior.add(createRing(0, 4, -7, wall_red, 9, 11, 1).rotateX(Math.PI / 2));
                 interior.add(createRing(0, 5, -7, wall_red, 9, 11, 1).rotateX(Math.PI / 2));
-
                 // poster
                 const posterPlane = new THREE.Mesh(new THREE.PlaneGeometry(3, 4), poster);
                 posterPlane.position.set(14, 8, -12.2);
                 posterPlane.rotation.y = 0;
                 interior.add(posterPlane);
-
                 // TV
                 interior.add(createBox(0, 8, -10, white_shad, 15.5, 7.5, 0.5));
                 interior.add(createBox(0, 8, -9.84, blackMetal, 15, 7, 0.2));
@@ -1019,7 +1013,6 @@
                 screen.position.set(0, 11.5, -9.73);
                 screen.rotation.y = 0;
                 interior.add(screen);
-
                 // seat
                 interior.add(seat(14, 1, 8, seatBlue));
                 interior.add(seat(-14, 1, 8, seatBlue));
@@ -1029,12 +1022,9 @@
                 interior.add(table(-14, 1, 4));
                 interior.add(sofa(-18, 1, 4).rotateY(Math.PI / 2));
                 interior.add(sofa(18, 1, 4).rotateY(Math.PI / -2));
-                
                 // shelf
                 interior.add(shelf(19, 1, -2));
-                
                 // healing pod
-                
                 const healingPod = new THREE.Group();
                 healingPod.add(createCylinder(0, 4, -11.5, sidewalk_grey, 3.5, 3.5, 0.5, false, 1).rotateZ(Math.PI / 2).rotateX(Math.PI / 2));
                 healingPod.add(createCylinder(0, 4, -11.49, wall_white, 3.4, 3.4, 0.5, false, 1).rotateZ(Math.PI / 2).rotateX(Math.PI / 2));
@@ -1100,15 +1090,15 @@
                 const riverGeometry = new THREE.PlaneGeometry(100, 20);
                 const riverMaterial = water;
                 const riverPlane = new THREE.Mesh(riverGeometry, riverMaterial);
-                riverPlane.rotation.x = -Math.PI / 2; // Rotate the plane to be horizontal
-                riverPlane.position.set(0, 0.1, 0); // Adjust the position as needed
+                riverPlane.rotation.x = -Math.PI / 2;
+                riverPlane.position.set(0, 0.1, 0);
                 return riverPlane;
             }
             function riverBank(){
                 const riverBankGeometry = new THREE.PlaneGeometry(100, 4);
                 const riverBankPlane = new THREE.Mesh(riverBankGeometry, riverDirt);
-                riverBankPlane.rotation.x = Math.PI / -3; // Rotate the plane 45 degrees
-                riverBankPlane.position.set(0, 1, -10.3); // Adjust the position as needed
+                riverBankPlane.rotation.x = Math.PI / -3;
+                riverBankPlane.position.set(0, 1, -10.3);
                 return riverBankPlane;
             }
             river.add(riverPlane());
@@ -1157,7 +1147,6 @@
         scene.add(river());
         scene.add(bushes());
 
-
         const magikarp1 = magikarpJump(0, -5, 50);
         scene.add(magikarp1);
 
@@ -1205,7 +1194,7 @@
         const path = createInfiniteSign(0, 50);
         scene.add(path);
         
-        const LakituSpeed = 0.1; // Adjust speed as needed
+        const LakituSpeed = 0.1;
         const pathPoints = path.geometry.attributes.position.array;
         const pathLength = pathPoints.length / 3;
         let pathIndex = 0;
@@ -1239,8 +1228,8 @@
         function openDoors() {
             if (!doorOpened) {
                 doorOpened = true;
-                gsap.to(leftdoor.rotation, { y: Math.PI / -2, duration: 1 }); // Left door opens to +30 degrees
-                gsap.to(rightdoor.rotation, { y: -Math.PI / -4, duration: 1 }); // Right door opens to -30 degrees
+                gsap.to(leftdoor.rotation, { y: Math.PI / -2, duration: 1 });
+                gsap.to(rightdoor.rotation, { y: -Math.PI / -4, duration: 1 });
             }
         }
 
@@ -1289,8 +1278,6 @@
             return wireframeBox;
         }
         
-
-        
         // ground & trees hitbox
         addCollidableObject(createWireframeBox(0, 0, 0, 100, 0.1, 80));
         addCollidableObject(createWireframeBox(0, -2, 50, 100, 0.1, 22));
@@ -1314,21 +1301,18 @@
         addCollidableObject(createWireframeBox(20, 23, -15, 36+5, 1, 21+5));
         addCollidableObject(createWireframeBox(20, 27, -15, 10, 5, 15));
 
-        
-
-
         // Create a bounding box for the camera
         const cameraBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 
         // Function to check for collisions
         function checkBoundingBoxCollision() {
-            // Update camera bounding box dynamically
-            const boxSize = 1; // Adjust size for the camera
+            // Update camera bounding box
+            const boxSize = 1;
             cameraBox.setFromCenterAndSize(new THREE.Vector3(camera.position.x, camera.position.y - 4, camera.position.z), new THREE.Vector3(boxSize, 8, boxSize));
 
             // Check for intersections with manually added collidable objects
             for (const obj of collidableObjects) {
-                obj.boundingBox.setFromObject(obj); // Update bounding box for transformations
+                obj.boundingBox.setFromObject(obj); // Update bounding box
                 if (cameraBox.intersectsBox(obj.boundingBox)) {
                     return true; // Collision detected
                 }
@@ -1336,8 +1320,16 @@
             return false; // No collision
         }
 
-        /*--------------------- add GUI ---------------------*/
-        // GUI setup
+
+
+
+
+
+
+
+
+        
+        /*--------------------- GUI Setup ---------------------*/
         // GUI setup
         const gui = new dat.GUI();
         const lightFolder = gui.addFolder('Light Settings');
@@ -1556,6 +1548,8 @@
 
 
 
+
+
         /*--------------------- render setup ---------------------*/
         // Renderer setup
         const renderer = new THREE.WebGLRenderer();
@@ -1606,7 +1600,7 @@
             // Lerp between positions for smooth movement
             Lakitu.position.x = currentX * (1 - alpha) + nextX * alpha;
             Lakitu.position.z = 50 + currentZ * (1 - alpha) + nextZ * alpha;
-            Lakitu.position.y = 15 + Math.sin(Date.now() * 0.001) * 0.5; // Smooth bobbing motion
+            Lakitu.position.y = 15 + Math.sin(Date.now() * 0.001) * 0.5;
 
             // Smooth rotation to face camera
             const targetRotation = Math.atan2(
@@ -1618,9 +1612,7 @@
             // Make nursePlane always face the camera
             nursePlane.lookAt(new THREE.Vector3(camera.position.x, nursePlane.position.y, camera.position.z));
             chanseyPlane.lookAt(new THREE.Vector3(camera.position.x, chanseyPlane.position.y, camera.position.z));
-
             
-
             // spin the pokeballs
             pokeball1.rotation.y += 0.02;
             pokeball2.rotation.y += 0.02;
@@ -1640,14 +1632,6 @@
 
             // Handle movement and check collisions
             handleMovement();
-
-            // Movement directions
-            // if (move.forward) controls.moveForward(speed);
-            // if (move.backward) controls.moveForward(-speed);
-            // if (move.left) controls.moveRight(-speed);
-            // if (move.right) controls.moveRight(speed);
-            // if (move.up) camera.position.y += verticalSpeed; // Move up
-            // if (move.down) camera.position.y -= verticalSpeed; // Move down
 
             renderer.render(scene, camera);
         }
